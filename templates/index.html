@@ -213,28 +213,3 @@
   </body>
 
 </html>
-
-<script>
-
-//href="QuQn" id="QQ"
-  $("a#QQ23").bind('click', function() {
-    console.log("OIIOI")
-    $.getJSON('/background_process_test',
-      function(data) {
-        console.log(data)
-      });
-      return false;
-  });
-</script>
-<script>
-  $(document).ready(function() {
-    var user = "{{user|safe}}";
-    if(user == "") {
-      $('#navbarResponsive li').slice(5,7).show();
-      $('#navbarResponsive li').slice(7,8).hide();
-    } else {
-      $('#navbarResponsive li').slice(5,7).hide();
-      $('#navbarResponsive li').slice(7,8).show();
-    }
-  });
-</script>
