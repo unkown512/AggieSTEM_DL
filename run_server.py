@@ -91,9 +91,8 @@ def landing_page():
 @login_required
 def dashboard():
     return render_template('index.html')
-  
 
 if __name__ == "__main__":
     port=int(os.getenv('PORT', 8080))
     host=os.environ['IP']
-    app.run(host=host, port=port)
+    app.run(host=host, port=port, debug=True)

@@ -9,3 +9,13 @@
     padding-top: 0px;
 }
 
+.thumbnail {
+    position: relative;
+}
+
+.caption {
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    width: 100%;
+}
