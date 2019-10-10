@@ -468,6 +468,9 @@ mark,
   font-size: 1.25rem;
 }
 
+.footer-bg {
+  background-color: #500000;
+}
 .blockquote-footer {
   display: block;
   font-size: 80%;
