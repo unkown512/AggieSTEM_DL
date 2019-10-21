@@ -37,6 +37,7 @@ app.config['SECRET_KEY'] = 'ASECRETYOUFOOL'
 
 user_list = list()
 TEMP_LOGIN_DB = []
+
 class User(UserMixin):
     def __init__(self, username, password, id):
         self.id = id
@@ -63,6 +64,7 @@ class LoginForm(FlaskForm):
 
 class RegisterForm(FlaskForm):
     username = StringField('Username', validators=[InputRequired(), Length(min=4, max=15)])
+    conf_password = PasswordField('Password', validators=[InputRequired(), Length(min=8, max=80)])
     password = PasswordField('Password', validators=[InputRequired(), Length(min=8, max=80)])
     conf_email = StringField('Email', validators=[InputRequired(), Email(message='Invalid Email'), Length(max=250)])
     email = StringField('Email', validators=[InputRequired(), Email(message='Invalid Email'), Length(max=250)])
@@ -83,7 +85,9 @@ def signin():
     if(form.validate_on_submit()):
         user = form.username.data
         pw = form.password.data
-        if(user == "Andy" and pw == "Andy1234"):
+        #TODO MODEL: This if statement will be changed with the salt/encryption or etc to valid user information
+        #Once validated, leave the rest the same with correct data
+        if(user == "Andy" and pw == "Andy1234" or (user == TEMP_LOGIN_DB[0][0] and pw == TEMP_LOGIN_DB[0][1])):
             user_list.append(User(user, form.password.data, 1))
             new_user = User(User, form.password.data, 1)
             login_user(new_user, remember=form.remember.data)
@@ -92,17 +96,23 @@ def signin():
  
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    form = LoginForm()
+    form = RegisterForm()
     if(request.method == 'GET'):
         return render_template('signup.html', form=form)
     elif(request.method == 'POST'):
-        return render_template('signup.html', form=form)
+      if(form.validate_on_submit()):
+        #TODO MODEL: Insert into the DB and create salt and etc....
+        TEMP_LOGIN_DB.append([form.username.data, form.password.data])
+        return redirect(url_for('signin'))
+      else:
+        print("INVALID FORM")
+        return redirect(url_for('signin'))
     else:
-         return render_template('signin.html', form=form)
+        return redirect(url_for('signin'))
   
 @app.route('/recov_username', methods=['GET', 'POST'])
 def recov_username():
-    form = LoginForm()
+    form = ""
     if(request.method == 'GET'):
         return render_template('recov_username.html', form=form)
     elif(request.method == 'POST'):
@@ -113,7 +123,7 @@ def recov_username():
     
 @app.route('/recov_pw', methods=['GET', 'POST'])
 def recov_pw():
-    form = LoginForm()
+    form = ""
     if(request.method == 'GET'):
         return render_template('recov_pw.html', form=form)
     elif(request.method == 'POST'):
