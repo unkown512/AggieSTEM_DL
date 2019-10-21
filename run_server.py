@@ -36,7 +36,7 @@ app.config['SECRET_KEY'] = 'ASECRETYOUFOOL'
 
 
 user_list = list()
-
+TEMP_LOGIN_DB = []
 class User(UserMixin):
     def __init__(self, username, password, id):
         self.id = id
@@ -57,17 +57,26 @@ class User(UserMixin):
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[InputRequired(), Length(min=4, max=15)])
-    password = PasswordField('Password', validators=[InputRequired(), Length(min=8, max=80)])
+    #TODO: Password length should be much longer than 80 
+    password = PasswordField('Password', validators=[InputRequired(), Length(min=8, max=80)]) 
     remember = BooleanField('Remember me')
 
 class RegisterForm(FlaskForm):
     username = StringField('Username', validators=[InputRequired(), Length(min=4, max=15)])
     password = PasswordField('Password', validators=[InputRequired(), Length(min=8, max=80)])
+    conf_email = StringField('Email', validators=[InputRequired(), Email(message='Invalid Email'), Length(max=250)])
+    email = StringField('Email', validators=[InputRequired(), Email(message='Invalid Email'), Length(max=250)])
+    
     
 @login_manager.user_loader
 def load_user(user_id):
     return User.get_user(int(user_id))
-    
+
+'''
+
+   Everything below this defines the url routes for the website
+
+'''
 @app.route('/signin', methods=['GET', 'POST'])
 def signin():
     form = LoginForm()
@@ -80,7 +89,37 @@ def signin():
             login_user(new_user, remember=form.remember.data)
             return redirect(url_for('dashboard'))
     return render_template("signin.html", form=form)
+ 
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    form = LoginForm()
+    if(request.method == 'GET'):
+        return render_template('signup.html', form=form)
+    elif(request.method == 'POST'):
+        return render_template('signup.html', form=form)
+    else:
+         return render_template('signin.html', form=form)
+  
+@app.route('/recov_username', methods=['GET', 'POST'])
+def recov_username():
+    form = LoginForm()
+    if(request.method == 'GET'):
+        return render_template('recov_username.html', form=form)
+    elif(request.method == 'POST'):
+        return render_template('recov_username.html', form=form)
+    else:
+         return render_template('signin.html', form=form)
+        
     
+@app.route('/recov_pw', methods=['GET', 'POST'])
+def recov_pw():
+    form = LoginForm()
+    if(request.method == 'GET'):
+        return render_template('recov_pw.html', form=form)
+    elif(request.method == 'POST'):
+        return render_template('recov_pw.html', form=form)
+    else:
+         return render_template('signin.html', form=form)
     
 @app.route('/')
 @login_required
