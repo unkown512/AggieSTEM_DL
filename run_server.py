@@ -35,6 +35,11 @@ login_manager.login_view = 'signin'
 app.config['SECRET_KEY'] = 'ASECRETYOUFOOL'
 
 
+'''
+    
+    user_list needs to be changed to be inside a class/db
+    TEMP_LOGIN_DB is temporary for testing the login system.
+'''
 user_list = list()
 TEMP_LOGIN_DB = []
 
@@ -88,11 +93,14 @@ def signin():
         #TODO MODEL: This if statement will be changed with the salt/encryption or etc to valid user information
         #Once validated, leave the rest the same with correct data
         if(user == "Andy" and pw == "Andy1234" or (user == TEMP_LOGIN_DB[0][0] and pw == TEMP_LOGIN_DB[0][1])):
-            user_list.append(User(user, form.password.data, 1))
-            new_user = User(User, form.password.data, 1)
-            login_user(new_user, remember=form.remember.data)
-            return redirect(url_for('dashboard'))
-    return render_template("signin.html", form=form)
+          user_list.append(User(user, form.password.data, 1))
+          new_user = User(User, form.password.data, 1)
+          login_user(new_user, remember=form.remember.data)
+          return redirect(url_for('dashboard'))
+        else:
+          message = "Incorrect username or password"
+    message = "Invalid Form" 
+    return render_template("signin.html", form=form, error=message)
  
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -108,22 +116,22 @@ def signup():
         print("INVALID FORM")
         return redirect(url_for('signin'))
     else:
-        return redirect(url_for('signin'))
+      return redirect(url_for('signin'))
   
 @app.route('/recov_username', methods=['GET', 'POST'])
 def recov_username():
-    form = ""
+    form = RegisterForm()
     if(request.method == 'GET'):
-        return render_template('recov_username.html', form=form)
+      return render_template('recov_username.html', form=form)
     elif(request.method == 'POST'):
-        return render_template('recov_username.html', form=form)
+      return render_template('recov_username.html', form=form)
     else:
-         return render_template('signin.html', form=form)
+      return render_template('signin.html', form=form)
         
     
 @app.route('/recov_pw', methods=['GET', 'POST'])
 def recov_pw():
-    form = ""
+    form = RegisterForm()
     if(request.method == 'GET'):
         return render_template('recov_pw.html', form=form)
     elif(request.method == 'POST'):
