@@ -64,10 +64,10 @@ class LoginForm(FlaskForm):
 
 class RegisterForm(FlaskForm):
     username = StringField('Username', validators=[InputRequired(), Length(min=4, max=15)])
-    conf_password = PasswordField('Password', validators=[InputRequired(), Length(min=8, max=80)])
     password = PasswordField('Password', validators=[InputRequired(), Length(min=8, max=80)])
-    conf_email = StringField('Email', validators=[InputRequired(), Email(message='Invalid Email'), Length(max=250)])
+    conf_password = PasswordField('Confirm Password', validators=[InputRequired(), Length(min=8, max=80)])
     email = StringField('Email', validators=[InputRequired(), Email(message='Invalid Email'), Length(max=250)])
+    conf_email = StringField('Confirm Email', validators=[InputRequired(), Email(message='Invalid Email'), Length(max=250)])
     
     
 @login_manager.user_loader
