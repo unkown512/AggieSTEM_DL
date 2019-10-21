@@ -43,9 +43,8 @@
           </span>
           <!--data-validate = "Valid email is: a@b.c"-->
           {{ form.hidden_tag() }}
-          {{ wtf.form_field(form.username) }}
-          {{ wtf.form_field(form.password) }}
-                    {{ wtf.form_field(form.remember) }}
+          {{ wtf.form_field(form.email) }}
+          {{ wtf.form_field(form.security_question) }}
           <div class="container-login100-form-btn">
             <div class="wrap-login100-form-btn">
               <div class="login100-form-bgbtn"></div>
@@ -55,25 +54,6 @@
             </div>
           </div>
           </form>
-          <div class="text-center p-t-115">
-            <span class="txt1">
-              Don’t have an account?
-            </span>
-            <a class="txt2" href="{{ url_for('signup') }}">
-              Sign Up
-            </a>
-          </div>
-          <div class="text-center">
-            <a class="txt2" href="{{ url_for('recov_username') }}">
-              Forgot Username?
-            </a>
-          </div>
-           <div class="text-center">
-            <a class="txt2" href="{{ url_for('recov_pw') }}">
-              Forgot Password?
-            </a>
-          </div>         
-        
       </div>
     </div>
   </div>

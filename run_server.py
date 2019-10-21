@@ -5,44 +5,53 @@
 '''
 import os
 
+# Flask Server Imports
 from flask import Flask
 from flask import request
 from flask import render_template, redirect
 from flask import url_for
 from flask_mobility import Mobility
 from flask_mobility.decorators import mobile_template, mobilized
-from flask_login import LoginManager, login_user, login_required, logout_user, current_user, UserMixin
+from flask_bootstrap import Bootstrap
+from flask_wtf import FlaskForm
 
+# Imports for forms and login mods
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, RadioField, SelectField
 from wtforms.validators import InputRequired, Email, Length
-from flask_bootstrap import Bootstrap
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user, UserMixin
 
+# Model Imports for storing and retrieving user information
+from model import user_manager
 
-
-
+# Start of server
 app = Flask(__name__)
-#app.wsgi_app = StreamConsumingMiddleware(app.wsgi_app)
 Mobility(app)
 Bootstrap(app)
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'signin'
-
-
-# TODO: CHANGE THIS 
-app.config['SECRET_KEY'] = 'ASECRETYOUFOOL'
-
-
+app.config['SECRET_KEY'] = user_manager.unique_key()
 '''
-    
     user_list needs to be changed to be inside a class/db
     TEMP_LOGIN_DB is temporary for testing the login system.
 '''
-user_list = list()
-TEMP_LOGIN_DB = []
+# Initlaize login_manager
+def init_login_manager(app):
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+    login_manager.login_view = 'signin'
+    user_list = list()
+    TEMP_LOGIN_DB = [] # Remove with insert into database
+    return(login_manager, user_list, TEMP_LOGIN_DB)
+    
+(login_manager, user_list, TEMP_LOGIN_DB) = init_login_manager(app)
 
+'''
+  Class User: Managers user methods for session
+  Class LoginForm: Generates the flask wtf form for the signin view and input checking
+  Class RegisterForm: Generates the flask wtf form for the signup view and input checking
+  Class ForgotUser: Generates the flask wtf form for the forgot user action
+  Class ForgotPw: Generates the flask wtf form for the forgot password action
+'''
 class User(UserMixin):
     def __init__(self, username, password, id):
         self.id = id
@@ -73,84 +82,108 @@ class RegisterForm(FlaskForm):
     conf_password = PasswordField('Confirm Password', validators=[InputRequired(), Length(min=8, max=80)])
     email = StringField('Email', validators=[InputRequired(), Email(message='Invalid Email'), Length(max=250)])
     conf_email = StringField('Confirm Email', validators=[InputRequired(), Email(message='Invalid Email'), Length(max=250)])
-    
-    
+
+class ForgotUser(FlaskForm):
+  email = StringField('Email', validators=[InputRequired(), Email(message='Invalid Email'), Length(max=250)])
+  security_question = StringField('Secruity Question', validators=[InputRequired(), Length(min=4, max=80)])
+
+class ForgotPw(FlaskForm):
+  username = StringField('Username', validators=[InputRequired(), Length(min=4, max=15)])
+  email = StringField('Email', validators=[InputRequired(), Email(message='Invalid Email'), Length(max=250)])
+  security_question = StringField('Secruity Question', validators=[InputRequired(), Length(min=4, max=80)])  
+
+# Get function for user during session
 @login_manager.user_loader
 def load_user(user_id):
-    return User.get_user(int(user_id))
+  return User.get_user(int(user_id))
 
 '''
-
-   Everything below this defines the url routes for the website
-
+  Starting of server routes and controller section of the application
+  NOTE: @app.route defines a url case from the client, as follows: https://<ip>:<port>/<route>
 '''
-@app.route('/signin', methods=['GET', 'POST'])
-def signin():
-    form = LoginForm()
-    if(form.validate_on_submit()):
-        user = form.username.data
-        pw = form.password.data
-        #TODO MODEL: This if statement will be changed with the salt/encryption or etc to valid user information
-        #Once validated, leave the rest the same with correct data
-        if(user == "Andy" and pw == "Andy1234" or (user == TEMP_LOGIN_DB[0][0] and pw == TEMP_LOGIN_DB[0][1])):
-          user_list.append(User(user, form.password.data, 1))
-          new_user = User(User, form.password.data, 1)
-          login_user(new_user, remember=form.remember.data)
-          return redirect(url_for('dashboard'))
-        else:
-          message = "Incorrect username or password"
-    message = "Invalid Form" 
-    return render_template("signin.html", form=form, error=message)
- 
-@app.route('/signup', methods=['GET', 'POST'])
-def signup():
-    form = RegisterForm()
-    if(request.method == 'GET'):
-        return render_template('signup.html', form=form)
-    elif(request.method == 'POST'):
-      if(form.validate_on_submit()):
-        #TODO MODEL: Insert into the DB and create salt and etc....
-        TEMP_LOGIN_DB.append([form.username.data, form.password.data])
-        return redirect(url_for('signin'))
-      else:
-        print("INVALID FORM")
-        return redirect(url_for('signin'))
-    else:
-      return redirect(url_for('signin'))
-  
-@app.route('/recov_username', methods=['GET', 'POST'])
-def recov_username():
-    form = RegisterForm()
-    if(request.method == 'GET'):
-      return render_template('recov_username.html', form=form)
-    elif(request.method == 'POST'):
-      return render_template('recov_username.html', form=form)
-    else:
-      return render_template('signin.html', form=form)
-        
-    
-@app.route('/recov_pw', methods=['GET', 'POST'])
-def recov_pw():
-    form = RegisterForm()
-    if(request.method == 'GET'):
-        return render_template('recov_pw.html', form=form)
-    elif(request.method == 'POST'):
-        return render_template('recov_pw.html', form=form)
-    else:
-         return render_template('signin.html', form=form)
-    
+
+# Root route -- Redirects to login page if not logged in
 @app.route('/')
 @login_required
 def landing_page():
-    return render_template('index.html')
-    
+  return render_template('index.html')
+
+# Landing Page -- Redirects to login page if not logged in
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('index.html')
+  return render_template('index.html')
+  
+# Login Page
+@app.route('/signin', methods=['GET', 'POST'])
+def signin():
+  form = LoginForm()
+  message = ""
+  if(request.method == 'POST'):
+    if(form.validate_on_submit()):
+      user = form.username.data
+      pw = form.password.data
+      '''
+      TODO MODEL TEAM: Change the 'validate_user' function to interact with db and validate user
+      NOTE: Once DB is setup, remove the TEMP_LOGIN_DB variable everywhere~!!!!
+      '''
+      if(user_manager.validate_user(user, pw, TEMP_LOGIN_DB)):
+        user_list.append(User(user, form.password.data, 1))
+        new_user = User(User, form.password.data, 1)
+        login_user(new_user, remember=form.remember.data)
+        return redirect(url_for('dashboard'))
+      else:
+        message = "Incorrect username or password"
+    else:
+       message = "Invalid Form" 
+  elif(request.method == 'GET'):
+    render_template("signin.html", form=form)
+  return render_template("signin.html", form=form, error=message)
 
+# Registration page
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+  form = RegisterForm()
+  if(request.method == 'GET'):
+    return render_template('signup.html', form=form)
+  elif(request.method == 'POST'):
+    if(form.validate_on_submit()):
+      '''
+        TODO MODEL TEAM: Update the 'add_user' function to 
+        insert into DB and create salts/hash/encryption for user etc...
+        
+        NOTE: TEMP_LOGIN_DB WILL BE REMOVED ONCE 'user_manager' is complete!!!
+      '''
+      user_manager.add_user(form.username.data, form.password.data)
+      TEMP_LOGIN_DB.append([form.username.data, form.password.data])
+      return redirect(url_for('signin'))
+    else:
+      print("INVALID FORM")
+      return redirect(url_for('signin'))
+  else:
+    return redirect(url_for('signin'))
 
-
+# Recover Username Page
+@app.route('/recov_username', methods=['GET', 'POST'])
+def recov_username():
+  form = ForgotUser()
+  if(request.method == 'GET'):
+    return render_template('recov_username.html', form=form)
+  elif(request.method == 'POST'):
+    return render_template('recov_username.html', form=form)
+  else:
+    return render_template('signin.html', form=form)
+    
+# Recover Password Page
+@app.route('/recov_pw', methods=['GET', 'POST'])
+def recov_pw():
+  form = ForgotPw()
+  if(request.method == 'GET'):
+    return render_template('recov_pw.html', form=form)
+  elif(request.method == 'POST'):
+    return render_template('recov_pw.html', form=form)
+  else:
+    return render_template('signin.html', form=form)
 
 if __name__ == "__main__":
-    app.run(host = os.getenv('IP','0.0.0.0'), port=int(os.getenv('PORT',8080)), debug=True)
+  app.run(host = os.getenv('IP','0.0.0.0'), port=int(os.getenv('PORT',8080)), debug=True)
