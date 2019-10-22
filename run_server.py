@@ -169,7 +169,7 @@ def signup():
 def userProfile():
   if(request.method == 'GET'):
     data = {}
-    return render_template('userProfile.html', data=data)
+    return render_template('userProfile.html', data=data, user=current_user.username)
   elif(request.method == 'POST'):
     data = {}
     return render_template('userProfile.html', data=data)
