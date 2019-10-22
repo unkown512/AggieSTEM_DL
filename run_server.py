@@ -106,13 +106,13 @@ def load_user(user_id):
 @app.route('/')
 @login_required
 def landing_page():
-  return render_template('index.html')
+  return render_template('index.html', user=current_user.username)
 
 # Landing Page -- Redirects to login page if not logged in
 @app.route('/dashboard')
 @login_required
 def dashboard():
-  return render_template('index.html')
+  return render_template('index.html', user=current_user.username)
   
 # Login Page
 @app.route('/signin', methods=['GET', 'POST'])
@@ -131,7 +131,7 @@ def signin():
         user_list.append(User(user, form.password.data, 1))
         new_user = User(User, form.password.data, 1)
         login_user(new_user, remember=form.remember.data)
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('dashboard', user=current_user.username))
       else:
         message = "Incorrect username or password"
     else:
@@ -162,6 +162,27 @@ def signup():
       return redirect(url_for('signin'))
   else:
     return redirect(url_for('signin'))
+
+# User Profile
+@app.route('/userProfile', methods=['GET', 'POST'])
+@login_required
+def userProfile():
+  if(request.method == 'GET'):
+    data = {}
+    return render_template('userProfile.html', data=data)
+  elif(request.method == 'POST'):
+    data = {}
+    return render_template('userProfile.html', data=data)
+  else:
+    return render_template('userProfile.html', data=data, error="ERROR: Try Again")
+
+# Logout User
+@app.route('/logout', methods=['GET'])
+@login_required
+def logout():
+  User.remove_user(current_user.username)
+  logout_user()
+  return redirect(url_for('signin'))
 
 # Recover Username Page
 @app.route('/recov_username', methods=['GET', 'POST'])
