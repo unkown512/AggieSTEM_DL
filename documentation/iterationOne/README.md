@@ -7,6 +7,5 @@ TODO List:
 2. Summary of meeting. (DJ)
 3. Update user login stories (Will)
 4. New user stories on account profile and account access level.
-Maybe discuss registration page and groups. 
-5. TBA
-6. Pivotal track and etc 
+Maybe discuss registration page and groups. (The 80%)
+5. Pivotal track and etc (Scrum Lead)
