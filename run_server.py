@@ -77,7 +77,9 @@ class LoginForm(FlaskForm):
     remember = BooleanField('Remember me')
 
 class RegisterForm(FlaskForm):
-    username = StringField('Username', validators=[InputRequired(), Length(min=4, max=15)])
+    #phone number
+    username = StringField('Username <p class="text-info">First Initial + Last Name<p>'
+      , validators=[InputRequired(), Length(min=4, max=15)])
     password = PasswordField('Password', validators=[InputRequired(), Length(min=8, max=80)])
     conf_password = PasswordField('Confirm Password', validators=[InputRequired(), Length(min=8, max=80)])
     email = StringField('Email', validators=[InputRequired(), Email(message='Invalid Email'), Length(max=250)])
@@ -155,7 +157,7 @@ def signup():
         NOTE: TEMP_LOGIN_DB WILL BE REMOVED ONCE 'user_manager' is complete!!!
       '''
       user_manager.add_user(form.username.data, form.password.data)
-      TEMP_LOGIN_DB.append([form.username.data, form.password.data])
+      TEMP_LOGIN_DB.append([form.username.data, form.password.data, form.email.data])
       return redirect(url_for('signin'))
     else:
       print("INVALID FORM")
@@ -169,7 +171,8 @@ def signup():
 def userProfile():
   if(request.method == 'GET'):
     data = {}
-    return render_template('userProfile.html', data=data, user=current_user.username)
+    return render_template('userProfile.html', data=data, user=current_user.username,
+      email= "placeholder@email.com")
   elif(request.method == 'POST'):
     data = {}
     return render_template('userProfile.html', data=data)
@@ -193,7 +196,7 @@ def recov_username():
   elif(request.method == 'POST'):
     return render_template('recov_username.html', form=form)
   else:
-    return render_template('signin.html', form=form)
+    return render_template('signin.html', form=form, error="TEST")
     
 # Recover Password Page
 @app.route('/recov_pw', methods=['GET', 'POST'])
@@ -204,7 +207,49 @@ def recov_pw():
   elif(request.method == 'POST'):
     return render_template('recov_pw.html', form=form)
   else:
-    return render_template('signin.html', form=form)
+    return render_template('signin.html', form=form, error="TEST")
+
+@app.route('/manage_users', methods=['GET', 'POST'])
+@login_required
+def manage_users():
+  if(request.method == 'GET'):
+    '''
+    TODO: Get all users and display on page 
+    MODEL TEAM: handle the call to user_manager.get_all_users()
+    
+    TO GET PARARMS BASED ON ID:
+    
+    username = request.args.get('ID')
+    
+    This can change based on a version of python, so could be request(s)
+    '''
+    return render_template('manage_users.html', user=current_user.username)
+  elif(request.method == 'POST'):
+    return render_template('manage_users.html', user=current_user.username)
+  else:
+    return render_template('index.html', user=current_user.username, error="TEST")
+
+@app.route('/manage_groups', methods=['GET', 'POST'])
+@login_required
+def manage_groups():
+  if(request.method == 'GET'):
+    '''
+    TODO: Get all users and display on page 
+    MODEL TEAM: handle the call to user_manager.get_all_users()
+    
+    TO GET PARARMS BASED ON ID:
+    
+    username = request.args.get('ID')
+    
+    This can change based on a version of python, so could be request(s)
+    '''
+    return render_template('manage_groups.html', user=current_user.username)
+  elif(request.method == 'POST'):
+    return render_template('manage_groups.html', user=current_user.username)
+  else:
+    return render_template('index.html', user=current_user.username, error="TEST")
+
+
 
 if __name__ == "__main__":
   app.run(host = os.getenv('IP','0.0.0.0'), port=int(os.getenv('PORT',8080)), debug=True)
