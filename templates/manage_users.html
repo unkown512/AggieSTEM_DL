@@ -74,40 +74,7 @@
           </div>
         </div>
       </header>
-      <table id="example_table" class="display" style="width:100%">
-      	<thead>
-      		<tr>
-      			<th>User</th>
-      			<th>Profession</th>
-      			<th>Access</th>
-      			<th>Email</th>
-      			<th>Phone Number</th>
-      			<th>Groups</th>
-      			<th>Last Login</th>
-      		</tr>
-      	</thead>
-      	<tbody>
-      		<tr>
-      			<td>Tiger_Nixon</td>
-      			<td>Professor</td>
-      			<td>3</td>
-      			<td>tiger_nixon@tamu.edu</td>
-      			<td>610-432-2121</td>
-      			<td>Star, Spec</td>
-      			<td>01/13/2019(21:45 GMT)</td>
-      		</tr>
-      		<tr>
-      			<td>Garrett_Winters</td>
-      			<td>Research Assistant</td>
-      			<td>1</td>
-      			<td>garrett_winters@tamu.edu</td>
-      			<td>410-632-3578</td>
-      			<td>Web, Nix</td>
-      			<td>05/31/2018(5:21 GMT)</td>
-      		</tr>
-      	</tbody>
-      </table>
-
+      <table id="users_table" class="display" width="100%"></table>
     </div>
     
     
@@ -144,9 +111,5 @@
     
     <!-- Garrett Scripts -->
     <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
-    <script>
-      $(document).ready( function () {
-        $('#example_table').DataTable();
-      } );
-    </script>
+    <script src="{{ url_for('static', filename='js/manage_users.js') }}"></script>
 </html>
