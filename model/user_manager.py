@@ -19,3 +19,6 @@ def validate_user(user, pw, TEMP_LOGIN_DB):
 def add_user(user, pw):
   # TODO
   return True
+  
+#TODO: TRAVIS ADD get_all_users_function here
+#have it return data like shown in manage_users.js
