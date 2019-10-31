@@ -156,7 +156,7 @@ def signup():
         
         NOTE: TEMP_LOGIN_DB WILL BE REMOVED ONCE 'user_manager' is complete!!!
       '''
-      user_manager.add_user(form.username.data, form.password.data)
+      user_manager.add_user(form.username.data, form.password.data, form.email.data)
       TEMP_LOGIN_DB.append([form.username.data, form.password.data, form.email.data])
       return redirect(url_for('signin'))
     else:
@@ -170,9 +170,26 @@ def signup():
 @login_required
 def userProfile():
   if(request.method == 'GET'):
-    data = {}
-    return render_template('userProfile.html', data=data, user=current_user.username,
-      email= "placeholder@email.com")
+    type = request.args.get('type')
+    '''
+      This needs to be changed...It is shit for now
+    '''
+    if(type):
+      username = request.args.get('username')
+      email = request.args.get('email')
+      phonenumber = request.args.get('phonenumber')
+    else:
+      # Get user info from TEMP_LOGIN_DB -> TODO: Replace with query
+      # userdata = user_manager.get_user_profile(username)
+      username = current_user.username
+      for user in TEMP_LOGIN_DB:
+        if(username == user[0]):
+          email = user[2]
+          break
+      phonenumber = "979-999-9999"
+      email="placeholder@email.com"
+    return render_template('userProfile.html', user=username,
+      email= email, phonenumber=phonenumber)
   elif(request.method == 'POST'):
     data = {}
     return render_template('userProfile.html', data=data)
