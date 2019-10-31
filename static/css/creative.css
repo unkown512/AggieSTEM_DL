@@ -120,13 +120,13 @@ img::-moz-selection {
 #mainNav .navbar-nav > li.nav-item > a.nav-link:hover,
 #mainNav .navbar-nav > li.nav-item > a.nav-link:focus:hover {
   /* Hover over color nav-items  */
-  color: #fd7e14;
+  color: #332c2c;
 }
 
 #mainNav .navbar-nav > li.nav-item > a.nav-link.active,
 #mainNav .navbar-nav > li.nav-item > a.nav-link:focus.active {
   /* Color for nav-items as you scroll down page to new subsections  */
-  color: #fd7e14 !important;
+  color: #332c2c !important;
   background-color: transparent;
 }
 
@@ -158,7 +158,7 @@ img::-moz-selection {
   #mainNav .navbar-nav > li.nav-item > a.nav-link:hover,
   #mainNav .navbar-nav > li.nav-item > a.nav-link:focus:hover {
     /* Hoverover navbar words (sections)*/
-    color: #fd7e14;
+    color: #332c2c;
   }
   #mainNav.navbar-shrink {
     border-bottom: 1px solid rgba(33, 37, 41, 0.1);
@@ -326,7 +326,7 @@ header.masthead p {
 
 .btn-primary:hover, .btn-primary:focus, .btn-primary:active {
   color: #fff;
-  background-color: #ee4b28 !important;
+  background-color: #f8f9fa !important;
 }
 
 .btn-primary:active, .btn-primary:focus {

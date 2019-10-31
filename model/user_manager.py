@@ -16,7 +16,22 @@ def validate_user(user, pw, TEMP_LOGIN_DB):
       return True
   return False
   
-def add_user(user, pw):
+def add_user(user, pw, email, sq1, sq2):
+  # TODO
+  # Insert user into DB
+  return True
+  
+def get_user_profile(userObject):
+  # TODO
+  # Return one user prof
+  return True
+  
+def get_all_users():
+  # TODO
+  # Return a list of users and their phone/email
+  return True
+  
+def delete_user():
   # TODO
   return True
   

@@ -235,7 +235,7 @@ def manage_groups():
   if(request.method == 'GET'):
     '''
     TODO: Get all users and display on page 
-    MODEL TEAM: handle the call to user_manager.get_all_users()
+    MODEL TEAM: Handle requests to function in group_manager.py
     
     TO GET PARARMS BASED ON ID:
     
