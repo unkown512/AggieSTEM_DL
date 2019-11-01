@@ -1,0 +1,6 @@
+Meeting Summary - 10/31/2019 at 1:15 PM Central 
+
+Reviewed the first iteration of the manage users page and updates on the previous views for user profile, sign up, and sign in pages.
+Each page checked out very positively with the customer and required very minimal changes. The signup page will include a position role
+such as researcher, senior doc, and director. The next iteration will include the manage groups view and the fully integrated database 
+for full testing.
