@@ -187,7 +187,6 @@ def userProfile():
           email = user[2]
           break
       phonenumber = "979-999-9999"
-      email="placeholder@email.com"
     return render_template('userProfile.html', user=username,
       email= email, phonenumber=phonenumber)
   elif(request.method == 'POST'):
