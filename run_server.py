@@ -265,6 +265,32 @@ def manage_groups():
   else:
     return render_template('index.html', user=current_user.username, error="TEST")
 
+@app.route('/message_users', methods=['GET', 'POST'])
+@login_required
+def message_users():
+  # TODO: CHECK IF USER IS ADMIN
+  if(request.method == 'GET'):
+    '''
+    TODO: Get all users and display on page 
+    MODEL TEAM: Return all users info from get_all_users()
+    (SAME AS MANAGE_USERS VIEW)
+      
+    TODO PAGE: Select users individualy, by group, or select all
+    '''
+    temp = user_manager.get_all_users()
+    # TODO: make subarray of relevent columns, username[0], phonenumber[4], groups[5]
+    data = []
+    for row in temp:
+      tmp = []
+      tmp.append(row[0])
+      tmp.append(row[4])
+      tmp.append(row[5])
+      data.append(tmp)
+    return render_template('message_users.html', user=current_user.username, data = data)
+  elif(request.method == 'POST'):
+    return render_template('maessage_users.html', user=current_user.username)
+  else:
+    return render_template('index.html', user=current_user.username, error="TEST")
 
 
 if __name__ == "__main__":
