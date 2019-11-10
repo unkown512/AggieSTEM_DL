@@ -7,6 +7,7 @@ var dataSet = [
   [ "James_Brown", "Research Assistant", "1", "j_brown@tamu.edu", "430-765-3446", "Spy, Nxt","08/01/2019(8:32 GMT)"]
 ];
 
+
 $(document).ready(function() {
   $('#users_table').DataTable( {
     data: dataSet,
