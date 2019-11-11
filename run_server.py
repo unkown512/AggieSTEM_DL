@@ -1,7 +1,7 @@
 '''
     Most of this needs to be double checked for updated versions or new methods.
-    We will probably want to just see if AWS can handle user login information for 
-    us to avoid any responsibility. 
+    We will probably want to just see if AWS can handle user login information for
+    us to avoid any responsibility.
 '''
 import os
 
@@ -42,7 +42,7 @@ def init_login_manager(app):
     user_list = list()
     TEMP_LOGIN_DB = [] # Remove with insert into database
     return(login_manager, user_list, TEMP_LOGIN_DB)
-    
+
 (login_manager, user_list, TEMP_LOGIN_DB) = init_login_manager(app)
 
 '''
@@ -72,8 +72,8 @@ class User(UserMixin):
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[InputRequired(), Length(min=4, max=15)])
-    #TODO: Password length should be much longer than 80 
-    password = PasswordField('Password', validators=[InputRequired(), Length(min=8, max=80)]) 
+    #TODO: Password length should be much longer than 80
+    password = PasswordField('Password', validators=[InputRequired(), Length(min=8, max=80)])
     remember = BooleanField('Remember me')
 
 class RegisterForm(FlaskForm):
@@ -92,7 +92,7 @@ class ForgotUser(FlaskForm):
 class ForgotPw(FlaskForm):
   username = StringField('Username', validators=[InputRequired(), Length(min=4, max=15)])
   email = StringField('Email', validators=[InputRequired(), Email(message='Invalid Email'), Length(max=250)])
-  security_question = StringField('Secruity Question', validators=[InputRequired(), Length(min=4, max=80)])  
+  security_question = StringField('Secruity Question', validators=[InputRequired(), Length(min=4, max=80)])
 
 # Get function for user during session
 @login_manager.user_loader
@@ -115,7 +115,7 @@ def landing_page():
 @login_required
 def dashboard():
   return render_template('index.html', user=current_user.username)
-  
+
 # Login Page
 @app.route('/signin', methods=['GET', 'POST'])
 def signin():
@@ -137,7 +137,7 @@ def signin():
       else:
         message = "Incorrect username or password"
     else:
-       message = "Invalid Form" 
+       message = "Invalid Form"
   elif(request.method == 'GET'):
     render_template("signin.html", form=form)
   return render_template("signin.html", form=form, error=message)
@@ -151,9 +151,9 @@ def signup():
   elif(request.method == 'POST'):
     if(form.validate_on_submit()):
       '''
-        TODO MODEL TEAM: Update the 'add_user' function to 
+        TODO MODEL TEAM: Update the 'add_user' function to
         insert into DB and create salts/hash/encryption for user etc...
-        
+
         NOTE: TEMP_LOGIN_DB WILL BE REMOVED ONCE 'user_manager' is complete!!!
       '''
       user_manager.add_user(form.username.data, form.password.data, form.email.data)
@@ -175,6 +175,7 @@ def userProfile():
       This needs to be changed...It is shit for now
     '''
     if(type):
+      print("HERE2")
       username = request.args.get('username')
       email = request.args.get('email')
       phonenumber = request.args.get('phonenumber')
@@ -187,6 +188,7 @@ def userProfile():
           email = user[2]
           break
       phonenumber = "979-999-9999"
+    email = "FFS"
     return render_template('userProfile.html', user=username,
       email= email, phonenumber=phonenumber)
   elif(request.method == 'POST'):
@@ -213,7 +215,7 @@ def recov_username():
     return render_template('recov_username.html', form=form)
   else:
     return render_template('signin.html', form=form, error="TEST")
-    
+
 # Recover Password Page
 @app.route('/recov_pw', methods=['GET', 'POST'])
 def recov_pw():
@@ -230,13 +232,13 @@ def recov_pw():
 def manage_users():
   if(request.method == 'GET'):
     '''
-    TODO: Get all users and display on page 
+    TODO: Get all users and display on page
     MODEL TEAM: handle the call to user_manager.get_all_users()
-    
+
     TO GET PARARMS BASED ON ID:
-    
+
     username = request.args.get('ID')
-    
+
     This can change based on a version of python, so could be request(s)
     '''
     return render_template('manage_users.html', user=current_user.username)
@@ -250,13 +252,13 @@ def manage_users():
 def manage_groups():
   if(request.method == 'GET'):
     '''
-    TODO: Get all users and display on page 
+    TODO: Get all users and display on page
     MODEL TEAM: Handle requests to function in group_manager.py
-    
+
     TO GET PARARMS BASED ON ID:
-    
+
     username = request.args.get('ID')
-    
+
     This can change based on a version of python, so could be request(s)
     '''
     return render_template('manage_groups.html', user=current_user.username)
@@ -271,10 +273,10 @@ def message_users():
   # TODO: CHECK IF USER IS ADMIN
   if(request.method == 'GET'):
     '''
-    TODO: Get all users and display on page 
+    TODO: Get all users and display on page
     MODEL TEAM: Return all users info from get_all_users()
     (SAME AS MANAGE_USERS VIEW)
-      
+
     TODO PAGE: Select users individualy, by group, or select all
     '''
     temp = user_manager.get_all_users()
@@ -294,4 +296,5 @@ def message_users():
 
 
 if __name__ == "__main__":
-  app.run(host = os.getenv('IP','0.0.0.0'), port=int(os.getenv('PORT',8080)), debug=True)
+  IP = '128.194.140.214'
+  app.run(host = os.getenv('IP',IP), port=int(os.getenv('PORT',8080)), debug=True)
