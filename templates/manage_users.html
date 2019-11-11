@@ -31,7 +31,6 @@
     <!-- <link href="/css/creative.min.css" rel="stylesheet"> -->
     <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/creative.min.css') }}">-->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/creative.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/mng_users.css') }}">
 
     <!--- MOBILE --->
     <link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.0/jquery.mobile-1.3.0.min.css" />
@@ -62,28 +61,32 @@
     </div>
   </nav>
 
-  <section class="about-banner">
-				<div class="container">				
-					<div class="row d-flex align-items-center justify-content-center">
-						<div class="about-content col-lg-12">
-							<h1 class="text-white">
-								Manage Users				
-							</h1>
-						</div>	
-					</div>
-				</div>
-	</section>
 
   <body id="page-top">
 
     <!-- TODO GARRETT -->
-    <div class="users" style="margin-top:1%;margin-right:10%;margin-left:10%">
+    <div class="users" style="margin-top:10%;margin-right:10%;margin-left:10%">
+      <header class="text-center d-flex">
+        <div class="container my-auto">
+          <div class="row">
+            <div class="col-lg-8 mx-auto">
+              <h1>Manage Users</h1>
+            </div>
+          </div>
+        </div>
+      </header>
       <table id="users_table" class="display" width="100%"></table>
     </div>
     
     
     
-  </body>      
+  </body>   
+  
+  <script>
+    var dataSet = {{data|safe}};
+  </script>
+
+
   <footer class="py-5 bg-dark">
     <div class="container">
       <p class="m-4 text-center text-dark">Copyright &copy; AggieSTEM 2019</p>

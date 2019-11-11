@@ -13,7 +13,6 @@ from flask import url_for
 from flask_mobility import Mobility
 from flask_mobility.decorators import mobile_template, mobilized
 from flask_bootstrap import Bootstrap
-from flask_wtf import FlaskForm
 
 # Imports for forms and login mods
 from flask_wtf import FlaskForm
@@ -22,26 +21,41 @@ from wtforms.validators import InputRequired, Email, Length
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user, UserMixin
 
+#Flask_PyMongo Import
+#from flask_pymongo import PyMongo
+
 # Model Imports for storing and retrieving user information
 from model import user_manager
+
+import mongoengine
+import pymongo
+import json
 
 # Start of server
 app = Flask(__name__)
 Mobility(app)
 Bootstrap(app)
 app.config['SECRET_KEY'] = user_manager.unique_key()
+
+
+# Grab the local client
+client = pymongo.MongoClient("mongodb://localhost:27017/")
+
+# Create reference to the correct DB.
+mongo = client["AggieSTEM"]
+
 '''
     user_list needs to be changed to be inside a class/db
     TEMP_LOGIN_DB is temporary for testing the login system.
 '''
 # Initlaize login_manager
 def init_login_manager(app):
-    login_manager = LoginManager()
-    login_manager.init_app(app)
-    login_manager.login_view = 'signin'
-    user_list = list()
-    TEMP_LOGIN_DB = [] # Remove with insert into database
-    return(login_manager, user_list, TEMP_LOGIN_DB)
+  login_manager = LoginManager()
+  login_manager.init_app(app)
+  login_manager.login_view = 'signin'
+  user_list = list()
+  TEMP_LOGIN_DB = [] # Remove with insert into database
+  return(login_manager, user_list, TEMP_LOGIN_DB)
     
 (login_manager, user_list, TEMP_LOGIN_DB) = init_login_manager(app)
 
@@ -53,46 +67,51 @@ def init_login_manager(app):
   Class ForgotPw: Generates the flask wtf form for the forgot password action
 '''
 class User(UserMixin):
-    def __init__(self, username, password, id):
-        self.id = id
-        self.username = username
-        self.password = password
+  def __init__(self, username, password, id):
+    self.id = id
+    self.username = username
+    self.password = password
 
-    @staticmethod
-    def get_user(user_id):
-        for xuser in user_list:
-            if(xuser.id == user_id):
-                return xuser
+  @staticmethod
+  def get_user(user_id):
+    for xuser in user_list:
+      if(xuser.id == user_id):
+        return xuser
 
-    @staticmethod
-    def remove_user(user_name):
-        for xuser in user_list:
-            if(xuser.username == user_name):
-                user_list.remove(xuser)
+  @staticmethod
+  def remove_user(user_name):
+    for xuser in user_list:
+      if(xuser.username == user_name):
+        user_list.remove(xuser)
+  
 
 class LoginForm(FlaskForm):
-    username = StringField('Username', validators=[InputRequired(), Length(min=4, max=15)])
-    #TODO: Password length should be much longer than 80 
-    password = PasswordField('Password', validators=[InputRequired(), Length(min=8, max=80)]) 
-    remember = BooleanField('Remember me')
+  username = StringField('Username', validators=[InputRequired(), Length(min=4, max=15)])
+  #TODO: Password length should be much longer than 80 
+  password = PasswordField('Password', validators=[InputRequired(), Length(min=8, max=80)]) 
+  remember = BooleanField('Remember me')
+
 
 class RegisterForm(FlaskForm):
-    #phone number
-    username = StringField('Username <p class="text-info">First Initial + Last Name<p>'
-      , validators=[InputRequired(), Length(min=4, max=15)])
-    password = PasswordField('Password', validators=[InputRequired(), Length(min=8, max=80)])
-    conf_password = PasswordField('Confirm Password', validators=[InputRequired(), Length(min=8, max=80)])
-    email = StringField('Email', validators=[InputRequired(), Email(message='Invalid Email'), Length(max=250)])
-    conf_email = StringField('Confirm Email', validators=[InputRequired(), Email(message='Invalid Email'), Length(max=250)])
+  #phone number
+  username = StringField('Username <p class="text-info">First Initial + Last Name<p>'
+    , validators=[InputRequired(), Length(min=4, max=15)])
+  password = PasswordField('Password', validators=[InputRequired(), Length(min=8, max=80)])
+  conf_password = PasswordField('Confirm Password', validators=[InputRequired(), Length(min=8, max=80)])
+  email = StringField('Email', validators=[InputRequired(), Email(message='Invalid Email'), Length(max=250)])
+  conf_email = StringField('Confirm Email', validators=[InputRequired(), Email(message='Invalid Email'), Length(max=250)])
+
 
 class ForgotUser(FlaskForm):
   email = StringField('Email', validators=[InputRequired(), Email(message='Invalid Email'), Length(max=250)])
   security_question = StringField('Secruity Question', validators=[InputRequired(), Length(min=4, max=80)])
+  
 
 class ForgotPw(FlaskForm):
   username = StringField('Username', validators=[InputRequired(), Length(min=4, max=15)])
   email = StringField('Email', validators=[InputRequired(), Email(message='Invalid Email'), Length(max=250)])
   security_question = StringField('Secruity Question', validators=[InputRequired(), Length(min=4, max=80)])  
+
 
 # Get function for user during session
 @login_manager.user_loader
@@ -129,7 +148,7 @@ def signin():
       TODO MODEL TEAM: Change the 'validate_user' function to interact with db and validate user
       NOTE: Once DB is setup, remove the TEMP_LOGIN_DB variable everywhere~!!!!
       '''
-      if(user_manager.validate_user(user, pw, TEMP_LOGIN_DB)):
+      if(user_manager.validate_user(mongo, user, pw)):
         user_list.append(User(user, form.password.data, 1))
         new_user = User(User, form.password.data, 1)
         login_user(new_user, remember=form.remember.data)
@@ -137,7 +156,7 @@ def signin():
       else:
         message = "Incorrect username or password"
     else:
-       message = "Invalid Form" 
+      message = "Invalid Form" 
   elif(request.method == 'GET'):
     render_template("signin.html", form=form)
   return render_template("signin.html", form=form, error=message)
@@ -157,7 +176,9 @@ def signup():
         NOTE: TEMP_LOGIN_DB WILL BE REMOVED ONCE 'user_manager' is complete!!!
       '''
       user_manager.add_user(form.username.data, form.password.data, form.email.data)
+
       TEMP_LOGIN_DB.append([form.username.data, form.password.data, form.email.data])
+
       return redirect(url_for('signin'))
     else:
       print("INVALID FORM")
@@ -180,15 +201,18 @@ def userProfile():
       phonenumber = request.args.get('phonenumber')
     else:
       # Get user info from TEMP_LOGIN_DB -> TODO: Replace with query
-      # userdata = user_manager.get_user_profile(username)
       username = current_user.username
-      for user in TEMP_LOGIN_DB:
-        if(username == user[0]):
-          email = user[2]
-          break
-      phonenumber = "979-999-9999"
-    return render_template('userProfile.html', user=username,
-      email= email, phonenumber=phonenumber)
+      
+      userdata = user_manager.get_user_profile(mongo, username)
+      uid = userdata['user_id']
+      email = userdata['email']
+      phonenumber = userdata['phone']
+      # for user in TEMP_LOGIN_DB:
+      #   if(username == user[0]):
+      #     email = user[2]
+      #     break
+      # phonenumber = "979-999-9999"
+    return render_template('userProfile.html', uid=uid, user=username, email= email, phonenumber=phonenumber)
   elif(request.method == 'POST'):
     data = {}
     return render_template('userProfile.html', data=data)
@@ -239,6 +263,8 @@ def manage_users():
     
     This can change based on a version of python, so could be request(s)
     '''
+    temp = user_manager.get_all_users(mongo)
+
     return render_template('manage_users.html', user=current_user.username)
   elif(request.method == 'POST'):
     return render_template('manage_users.html', user=current_user.username)
@@ -277,14 +303,15 @@ def message_users():
       
     TODO PAGE: Select users individualy, by group, or select all
     '''
-    temp = user_manager.get_all_users()
+    temp = user_manager.get_all_users(mongo)
+    
     # TODO: make subarray of relevent columns, username[0], phonenumber[4], groups[5]
     data = []
     for row in temp:
       tmp = []
-      tmp.append(row[0])
-      tmp.append(row[4])
-      tmp.append(row[5])
+      tmp.append(row['username'])
+      tmp.append(row['phone'])
+      tmp.append(row['email'])
       data.append(tmp)
     return render_template('message_users.html', user=current_user.username, data = data)
   elif(request.method == 'POST'):

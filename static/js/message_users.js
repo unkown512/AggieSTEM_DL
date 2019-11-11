@@ -17,3 +17,18 @@ $(document).ready(function() {
     ]
   } );
 });
+
+
+// $(document).ready(function() {
+//   $('#users_table').DataTable( {
+//     data: dataSet,
+//     columns: [
+//       {data:'user_id'},
+//       {data:'username'},
+//       {data:'phone'},
+//       {data:'email'},
+//       {data:'position'}
+      
+//     ]
+//   } );
+// });

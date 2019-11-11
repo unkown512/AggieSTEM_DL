@@ -5,6 +5,7 @@ Created on Fri Nov 01 22:22:25 2019
 @author: Carson
 """
 from mongoengine import *
+from pprint import pprint
 import datetime
 import pymongo
 import json
@@ -171,17 +172,18 @@ def Import(data_file = None):
         content_table.insert_many(data['content'])
 
         # Create indicies
-        user_table.create_index([('user_id', pymongo.TEXT)], name='user_search', default_language='english')
+        #user_table.create_index([('user_id', pymongo.TEXT)], default_language='english')
+        #user_table.create_index([('username', pymongo.TEXT)], default_language='english')
 
-        security_table.create_index([('user_id', pymongo.TEXT)], name='security_search', default_language='english')
+        #security_table.create_index([('user_id', pymongo.TEXT)], name='security_search', default_language='english')
 
-        user_library_access_table.create_index([('user_id', pymongo.TEXT)], name='user_search', default_language='english')
+        #user_library_access_table.create_index([('user_id', pymongo.TEXT)], name='user_library_search', default_language='english')
         #user_library_access_table.create_index([('library_ids', pymongo.TEXT)], name='user_lib_search', default_language='english')
 
-        library_table.create_index([('library_id', pymongo.TEXT)], name='lib_search', default_language='english')
+        #library_table.create_index([('library_id', pymongo.TEXT)], name='library_search', default_language='english')
         #library_table.create_index([('owner_id', pymongo.TEXT)], name='owner_lib_search', default_language='english')
         
-        content_table.create_index([('content_id', pymongo.TEXT)], name='content_search', default_language='english')
+        #content_table.create_index([('content_id', pymongo.TEXT)], name='content_search', default_language='english')
 
         # Show that this name is successfully there
         dblist = client.list_database_names()
@@ -195,4 +197,25 @@ if len(args) is 1:
     Setup()
 else:
     Import(args[1])
-    
+
+
+#Create a master user
+db['user'].find_one_and_update({'user_id':0}, {'$set':{'username': 'Andy', 'email':'andy@tamu.edu', 'access_level':3, 'position':'Admin'}})
+db['security'].find_one_and_update({'user_id':0}, {'$set':{'password': 'Andy1234'}})
+
+user = 'Andy'
+pw = 'Andy1234'
+email = 'Andy@tamu.edu'
+
+#u_info = db['user'].find_one({'username':user})
+#u_pw = db['security'].find_one({'user_id':u_info['user_id']})
+#print(str(u_pw['password'] == pw))
+
+# data = []
+# for i in db['user'].find(): 
+#     data.append(i) 
+
+# pprint(data)
+
+#for index in db['user'].find({'user_id': 0}):  
+#    print(index) 
