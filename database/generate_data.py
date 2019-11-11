@@ -1,6 +1,7 @@
 import sys
 import json
 import random
+import timer
 
 # Get the number of elements to generate
 args = sys.argv
@@ -8,23 +9,53 @@ args = sys.argv
 num_users = int(args[1])
 num_library = int(args[2])
 num_content = int(args[3])
+num_user_library = 20
 
-# Name of the save file for the data
-#user_file = 'user_data_' + str(num_users) + '.json'
-#library_file = 'library_data_' + str(num_library) + '.json'
-#content_file = 'content_data_' + str(num_content) + '.json'
+TOGGLE_SORTED_LISTS = True
+
+#----------------------------------------------------------------
+
+t = timer.Timer()
+t.start()
+
+#----------------------------------------------------------------
 
 save_file = 'data-U' + str(num_users) + '-L' + str(num_library) + '-C' + str(num_content) + '.json'
 
-WORDS = []  #https://github.com/dwyl/english-words
+#----------------------------------------------------------------
+
+print('\n----------------------------------------------------------------')
+print('Users: {0} \tLibraries: {1} \tContent: {2}'.format(num_users, num_library, num_content))
+print('----------------------------------------------------------------')
+
+#----------------------------------------------------------------
 
 print('Reading words file...', end='')
+WORDS = []  #https://github.com/dwyl/english-words
 with open('words_alpha.txt', 'r') as f:
     WORDS = f.readlines()
-print('...Done')
+print('...Done \t\t{0} ms'.format(t.lap_time(1000)), flush=True)
+
+#----------------------------------------------------------------
 
 EMAILS = ['@gmail.com', '@yahoo.com', '@live.com', '@icloud.com', '@tamu.edu', '@hotmail.com']
 POSITIONS = ['Guest', 'Member', 'Manager', 'Admin']
+ACCESS_LEVELS = [0, 1, 2, 3]
+
+#----------------------------------------------------------------
+
+print('Generating ID list(s)...', end='')
+CONTENT_IDS = []
+LIBRARY_IDS = []
+#Create a list of LIBRARY_IDS for use with generating unique users
+for i in range(0, num_library):   
+    LIBRARY_IDS.append(i)
+#Create a list of CONTENT_IDS for use with generating unique libraries
+for i in range(0, num_content):   
+    CONTENT_IDS.append(i)
+print('...Done \t{0} ms'.format(t.lap_time(1000)), flush=True)
+
+#----------------------------------------------------------------
 
 # Data Schema
 #user        = User( user_id=0, 
@@ -54,9 +85,7 @@ POSITIONS = ['Guest', 'Member', 'Manager', 'Admin']
 #content     = Content(  content_id=0, 
 #                        data='HasContent' )
 
-user_data = []
-library_data = []
-content_data = []
+#----------------------------------------------------------------
 
 data = {}
 data['user'] = []
@@ -72,21 +101,22 @@ print('Generating user data...', end='', flush=True)
 for i in range(0, num_users):
     user_id = i
     username = (random.choice(WORDS)).rstrip() + '#' + str(random.randrange(10000)).zfill(4)
-    access_level = random.randint(0,3)
+    access_level = random.choice(ACCESS_LEVELS)
     email = username + random.choice(EMAILS)
     phone = str(random.randrange(212,1000)) + '-' + str(random.randrange(1000)).zfill(3) + '-' + str(random.randrange(10000)).zfill(4)
     position = POSITIONS[access_level]
     security_questions = ['What does a duck do?', 'How does a fox quack?']
     password = username
     security_answers = ['quack', 'bark']
-  
-    d = {}
-    n = random.randrange(10)
-    while len(d) < n:   #Create a unique list of library_ids
-        d.update({random.randrange(num_library): random.randint(0,3)})
 
-    library_ids = list(d.keys())
-    library_access = list(d.values())
+    n = random.randrange(num_user_library)
+    library_access = random.choices(ACCESS_LEVELS, k=n)
+    library_ids = random.sample(LIBRARY_IDS, k=n)           #Unique random elements from LIBRARY_IDS
+
+    if TOGGLE_SORTED_LISTS:
+        library_ids.sort()
+    
+    #d = dict(zip(library_ids, library_access))
 
     # Create the data JSON
     data['user'].append({
@@ -111,7 +141,7 @@ for i in range(0, num_users):
         'library_access': library_access
     })
     #END_OF_FOR
-print('...Done', flush=True)
+print('...Done \t\t{0} ms'.format(t.lap_time(1000)), flush=True)
 
 #----------------------------------------------------------------
 
@@ -120,15 +150,11 @@ print('Generating library data...', end='', flush=True)
 for i in range(0, num_library):
     library_id = i 
     owner_id = random.randrange(num_users)
-    min_permission = random.randint(0,3)
-    
-    d = {}
-    #n = random.randrange(num_content)
-    #while len(d) < n:   #Create a unique list of content_ids
-    for j in range(0, random.randrange(num_content)):   #Create a unique list of content_ids
-        d.update({random.randrange(num_content): 0})
+    min_permission = random.choice(ACCESS_LEVELS)
+    content_ids = random.sample(CONTENT_IDS, k=random.randrange(num_content))
 
-    content_ids = list(d.keys())
+    if TOGGLE_SORTED_LISTS:
+        content_ids.sort()
 
     # Create the data JSON
     data['library'].append({
@@ -138,7 +164,7 @@ for i in range(0, num_library):
         'content_ids': content_ids
     })
     #END_OF_FOR
-print('...Done', flush=True)
+print('...Done \t{0} ms'.format(t.lap_time(1000)), flush=True)
 
 #----------------------------------------------------------------
 
@@ -153,7 +179,7 @@ for i in range(0, num_content):
         'data': 'Data for content_id: ' + str(content_id)
     })
     #END_OF_FOR
-print('...Done', flush=True)
+print('...Done \t{0} ms'.format(t.lap_time(1000)), flush=True)
 
 #----------------------------------------------------------------
 #----------------------------------------------------------------
@@ -161,27 +187,11 @@ print('...Done', flush=True)
 print('Exporting data...', end='', flush=True)
 with open(save_file, 'w+') as f:
     json.dump(data, f)
-print('...Done', flush=True)
+print('...Done \t\t{0} ms'.format(t.lap_time(1000)), flush=True)
 
 #----------------------------------------------------------------
+t.stop()
+print('----------------------------------------------------------------')
+print('Total elapsed {0} ms'.format(t.get_time(1000)))
+print('----------------------------------------------------------------\n')
 #----------------------------------------------------------------
-
-
-
-
-
-
-#print('Exporting user data...', end='', flush=True)
-#with open(user_file, 'w+') as f:
-#    json.dump(user_data, f)
-#print('...Done', flush=True)
-#
-#print('Exporting library data...', end='', flush=True)
-#with open(library_file, 'w+') as f:
-#    json.dump(library_data, f)
-#print('...Done', flush=True)
-#
-#print('Exporting content data...', end='', flush=True)
-#with open(content_file, 'w+') as f:
-#    json.dump(content_data, f)
-#print('...Done', flush=True)
