@@ -10,6 +10,7 @@ var dataSet = [
 
 $(document).ready(function() {
   $('#users_table').DataTable( {
+    responsive: true,
     data: dataSet,
     columns: [
       { 
