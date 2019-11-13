@@ -282,15 +282,21 @@ def message_users():
     temp = user_manager.get_all_users()
     # TODO: make subarray of relevent columns, username[0], phonenumber[4], groups[5]
     data = []
+    groups = set()
     for row in temp:
+      for group in row[5].split(", "):
+        groups.add(group)
       tmp = []
       tmp.append(row[0])
       tmp.append(row[4])
       tmp.append(row[5])
       data.append(tmp)
-    return render_template('message_users.html', user=current_user.username, data = data)
+    
+    print(groups)
+      
+    return render_template('message_users.html', user=current_user.username, data = data, groups = list(groups))
   elif(request.method == 'POST'):
-    return render_template('maessage_users.html', user=current_user.username)
+    return render_template('message_users.html', user=current_user.username)
   else:
     return render_template('index.html', user=current_user.username, error="TEST")
 
