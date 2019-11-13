@@ -61,12 +61,14 @@ db = client["AggieSTEM"]
 # Setup tables within the db.
 db["user"].drop()         
 db["security"].drop() 
+db["group"].drop()
 db["user_library_access"].drop()  
 db["library"].drop()  
 db["content"].drop()  
 
 user_table                  = db["user"]
-security_table              = db["security"]         
+security_table              = db["security"]       
+group_table                 = db["group"]  
 user_library_access_table   = db["user_library_access"]
 library_table               = db["library"]
 content_table               = db["content"]  
@@ -89,6 +91,12 @@ def Setup():
                             password='pw1234',
                             security_answers=['quack', 'bark'] )
 
+    group       = Group(group_id=0,
+                        owner_id=0,
+                        group_name='IsGroup',
+                        access_level=0,
+                        user_ids=[0] )
+
     access      = UserLibraryAccess(user_id=0, 
                                     library_ids=[0], 
                                     library_access=[3] )
@@ -107,12 +115,15 @@ def Setup():
     user_table.insert_one(                  json.loads(user.to_json())      )
     user_library_access_table.insert_one(   json.loads(access.to_json())    )
     security_table.insert_one(              json.loads(security.to_json())  )
+    group_table.insert_one(                 json.loads(group.to_json())     )
     library_table.insert_one(               json.loads(library.to_json())   )
     content_table.insert_one(               json.loads(content.to_json())   )
     
 
     # Create indicies
     user_table.create_index([('user_id', pymongo.TEXT)], name='user_search', default_language='english')
+
+    user_table.create_index([('group_id', pymongo.TEXT)], name='group_search', default_language='english')
 
     security_table.create_index([('user_id', pymongo.TEXT)], name='security_search', default_language='english')
 
@@ -167,6 +178,7 @@ def Import(data_file = None):
 
         user_table.insert_many(data['user'])
         security_table.insert_many(data['security'])
+        group_table.insert_many(data['group'])
         user_library_access_table.insert_many(data['access'])
         library_table.insert_many(data['library'])
         content_table.insert_many(data['content'])
@@ -212,8 +224,8 @@ email = 'Andy@tamu.edu'
 #print(str(u_pw['password'] == pw))
 
 # data = []
-# for i in db['user'].find(): 
-#     data.append(i) 
+# for i in db['group'].find(): 
+    # data.append(i) 
 
 # pprint(data)
 

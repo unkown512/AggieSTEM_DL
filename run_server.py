@@ -44,6 +44,7 @@ client = pymongo.MongoClient("mongodb://localhost:27017/")
 # Create reference to the correct DB.
 mongo = client["AggieSTEM"]
 
+
 '''
     user_list needs to be changed to be inside a class/db
     TEMP_LOGIN_DB is temporary for testing the login system.

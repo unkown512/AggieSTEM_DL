@@ -45,8 +45,13 @@ ACCESS_LEVELS = [0, 1, 2, 3]
 #----------------------------------------------------------------
 
 print('Generating ID list(s)...', end='')
-CONTENT_IDS = []
+USER_IDS = []
 LIBRARY_IDS = []
+CONTENT_IDS = []
+
+#Create a list of USER_IDS for use with generating unique groups
+for i in range(0, num_users):   
+    USER_IDS.append(i)
 #Create a list of LIBRARY_IDS for use with generating unique users
 for i in range(0, num_library):   
     LIBRARY_IDS.append(i)
@@ -90,6 +95,7 @@ print('...Done \t{0} ms'.format(t.lap_time(1000)), flush=True)
 data = {}
 data['user'] = []
 data['security'] = []
+data['group'] = []
 data['access'] = []
 data['library'] = []
 data['content'] = []
@@ -105,6 +111,10 @@ for i in range(0, num_users):
     email = username + random.choice(EMAILS)
     phone = str(random.randrange(212,1000)) + '-' + str(random.randrange(1000)).zfill(3) + '-' + str(random.randrange(10000)).zfill(4)
     position = POSITIONS[access_level]
+    
+    group_name = (random.choice(WORDS)).rstrip()
+    user_ids = random.sample(LIBRARY_IDS, k=random.randrange(num_users))
+    
     security_questions = ['What does a duck do?', 'How does a fox quack?']
     password = username
     security_answers = ['quack', 'bark']
@@ -114,6 +124,7 @@ for i in range(0, num_users):
     library_ids = random.sample(LIBRARY_IDS, k=n)           #Unique random elements from LIBRARY_IDS
 
     if TOGGLE_SORTED_LISTS:
+        user_ids.sort()
         library_ids.sort()
     
     #d = dict(zip(library_ids, library_access))
@@ -135,11 +146,20 @@ for i in range(0, num_users):
         'security_answers': security_answers
     })
 
+    data['group'].append({
+        'group_id': user_id,
+        'owner_id': user_id,
+        'group_name': group_name,
+        'access_level': access_level,
+        'user_ids': user_ids
+    })
+
     data['access'].append({
         'user_id': user_id,
         'library_ids': library_ids,
         'library_access': library_access
     })
+
     #END_OF_FOR
 print('...Done \t\t{0} ms'.format(t.lap_time(1000)), flush=True)
 
