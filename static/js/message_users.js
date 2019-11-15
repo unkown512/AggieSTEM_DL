@@ -1,4 +1,4 @@
-/* 
+/*
   Add databtales to display user data or w.e
 */
 
@@ -7,6 +7,11 @@ console.log("wtf mate")
 // Add checkbox and multiselect bootstrap and select all checkbox
 // https://mdbootstrap.com/docs/jquery/forms/multiselect/
 $(document).ready(function() {
+	 $('#boot-multiselect-demo').multiselect({
+		 includeSelectAllOption: true,
+	     buttonWidth: 250,
+		 enableFiltering: true
+	 });
    function cbDropdown(column) {
      //console.log(button)
     return $('<ul>', {
@@ -15,7 +20,7 @@ $(document).ready(function() {
       'class': 'cb-dropdown-wrap'
     }).appendTo(column));
   }
-  
+
   var table = $('#message_users_table').DataTable( {
     responsive: true,
     data: dataSet,
@@ -29,10 +34,10 @@ $(document).ready(function() {
           text: 'Select Groups',
           select: {
           selector: 'td.select-checkbox'
-            
+
           }
         }*/
-        
+
     ],
     language: {
         buttons: {
@@ -54,38 +59,38 @@ $(document).ready(function() {
         className: 'select-checkbox',
         orderable: false
       },
-      { 
+      {
         title: "User",
-        data: 0 
+        data: 0
       },
-      { 
+      {
         title: "Phone Number",
-        data: 1 
+        data: 1
       },
-      { 
+      {
         title: "Groups",
         data: 2
       },
 
     ],
-      
+
     select: {
       style:    'multi',
       selector: 'td.select-checkbox'
         },
-        
+
         initComplete: function() {
       this.api().columns([4]).every(function() {
         var column = this;
         console.log(column);
-       
+
         var ddmenu = cbDropdown($(column.header())).click(function(event){event.stopPropagation();})
           .on('change', ':checkbox', 'click', function(e){
             e.stopPropagation();
             var vals = $(':checked', ddmenu).map(function(index, element) {
               return $.fn.dataTable.util.escapeRegex($(element).val());
             }).toArray();
-            
+
             /*var x;
             console.log(vals);
             for (x of vals){
@@ -95,15 +100,15 @@ $(document).ready(function() {
                 column.search(x).draw();
                 //table.row(column.search(x).draw()).select();
               }
-              
+
             //  column.draw();
             }*/
             column
-                        .search( vals ? vals : '', true, false ) 
+                        .search( vals ? vals : '', true, false )
                         .draw();
             e.stopPropagation();
           });
-          
+
 
         groupSet.forEach(function(d, j) {
           var // wrapped
@@ -125,6 +130,6 @@ $(document).ready(function() {
         });
       });
     }
-        
+
   } );
 });
