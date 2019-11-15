@@ -30,10 +30,14 @@
     <!-- <link href="/css/creative.min.css" rel="stylesheet"> -->
     <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/creative.min.css') }}">-->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/creative.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/about_banner.css') }}">
 
     <!--- MOBILE --->
     <link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.0/jquery.mobile-1.3.0.min.css" />
 
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.dataTables.min.css">
+   
   </head>
 
   <!-- Navigation -->
@@ -56,12 +60,23 @@
     </div>
   </nav>
 
+  <section class="about-banner">
+    <div class="container">				
+      <div class="row d-flex align-items-center justify-content-center">
+        <div class="about-content col-lg-12">
+          <h1 class="text-white">
+            Manage Groups				
+          </h1>
+        </div>	
+      </div>
+    </div>
+  </section>
+
   <body id="page-top">
 
-    <!-- TODO GARRETT -->
-    <div class="users">
-      
-      
+    <!-- TODO  -->
+    <div class="groups" style="margin-top:1%;margin-right:10%;margin-left:10%">
+      <table id="groups_table" class="display responsive nowrap" width="100%"></table>
     </div>
     
   </body>      
@@ -93,4 +108,8 @@
     <!-- <script src="/js/creative.min.js"></script> -->
     <script src="{{ url_for('static', filename='js/creative.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/message.js') }}"></script>
+
+    <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>   
+    <script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+    <script src="{{ url_for('static', filename='js/manage_groups.js') }}"></script>
 </html>
