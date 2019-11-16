@@ -19,7 +19,7 @@ Garrett:
 
 DJ:
 
-Meeting with customer on 11/16/2019 at 2PM to discuss changes.
+Meeting with customer on 11/16/2019 at 3PM to discuss changes. Video is shared by google drive.
 
 Paired programming with Will on message users. Working on getting the controller
 fully setup for using the database (model) functions. 
