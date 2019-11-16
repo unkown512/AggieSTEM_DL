@@ -15,7 +15,10 @@ Garrett:
 - Improved look of mangage users page
 - Made user table in manage users page responsive
 
+Carson:
 
+- Created the group manager for the Database.
+- Prepared the skeleton for the library manager.
 
 DJ:
 
