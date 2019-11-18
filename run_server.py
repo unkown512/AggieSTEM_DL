@@ -25,6 +25,9 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 # Model Imports for storing and retrieving user information
 from model import user_manager
 
+# MongoDB imports
+import pymongo
+
 # Start of server
 app = Flask(__name__)
 Mobility(app)
@@ -125,11 +128,13 @@ def signin():
     if(form.validate_on_submit()):
       user = form.username.data
       pw = form.password.data
-      '''
-      TODO MODEL TEAM: Change the 'validate_user' function to interact with db and validate user
-      NOTE: Once DB is setup, remove the TEMP_LOGIN_DB variable everywhere~!!!!
-      '''
-      if(user_manager.validate_user(user, pw, TEMP_LOGIN_DB)):
+      try:
+        client = pymongo.MongoClient("mongodb://localhost:27017/")
+      except pymongo.errors.ServerSelectionTimeoutError as err:
+        print(err)
+      db = client["AggieSTEM"]
+
+      if(user_manager.validate_user(db, user, pw)):
         user_list.append(User(user, form.password.data, 1))
         new_user = User(User, form.password.data, 1)
         login_user(new_user, remember=form.remember.data)
@@ -291,9 +296,9 @@ def message_users():
       tmp.append(row[4])
       tmp.append(row[5])
       data.append(tmp)
-    
+
     print(groups)
-      
+
     return render_template('message_users.html', user=current_user.username, data = data, groups = list(groups))
   elif(request.method == 'POST'):
     return render_template('message_users.html', user=current_user.username)
