@@ -66,7 +66,6 @@ def get_user_profile(db, user):
   return db['user'].find_one({'username':user})
 
 def get_all_users(db):
-  # TODO
   data = []
   for i in db['user'].find():
     data.append(i)
@@ -76,4 +75,8 @@ def get_all_users(db):
 def delete_user(db, user):
   # TODO
   return True
+
+def get_last_login(db, user):
+  # TODO: RETURN LAST LOGIN TIME
+  return 0
 
