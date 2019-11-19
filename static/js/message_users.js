@@ -74,10 +74,14 @@ $(document).ready(function() {
     table.rows().data().each(function (value, index) {
       var has_group = 0;
       var row = table.row(index).node();
-      for(var i=0; i<selected_groups.length; i++) {
-        if(value.includes(selected_groups[i])) {
-          has_group = 1;
-          break;
+      if(value.includes("Select all")) {
+        has_group = 1;
+      } else {
+        for(var i=0; i<selected_groups.length; i++) {
+          if(value.includes(selected_groups[i])) {
+            has_group = 1;
+            break;
+          }
         }
       }
       if(has_group == 1) {
