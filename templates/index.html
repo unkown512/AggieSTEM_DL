@@ -53,17 +53,17 @@
             <li class="nav-item">
               <a class="nav-link js-scroll-trigger" href="#services">Tools</a>
             </li>
-            <li class="nav-item" id="login" name="login">
-              <a class="nav-link js-scroll-trigger" href="{{ url_for('userProfile') }}">Account {{user}}</a>
-            </li>
             <li class="nav-item" id="manageuser" name="manageuser">
               <a class="nav-link js-scroll-trigger" href="{{ url_for('manage_users') }}">Manage Users</a>
             </li>
-            <li class="nav-item" id="managegroups" name="managegroups">
+            <!-- <li class="nav-item" id="managegroups" name="managegroups">
               <a class="nav-link js-scroll-trigger" href="{{ url_for('manage_groups') }}">Manage Groups</a>
-            </li>
+            </li>-->
             <li class="nav-item" id="messageusers" name="messageusers">
               <a class="nav-link js-scroll-trigger" href="{{ url_for('message_users') }}">Message Users</a>
+            </li>
+            <li class="nav-item" id="login" name="login">
+              <a class="nav-link js-scroll-trigger" href="{{ url_for('userProfile') }}">Account {{user}}</a>
             </li>
             <li class="nav-item" id="logout" name="logout">
               <a class="nav-link js-scroll-trigger" href="{{ url_for('logout') }}">Logout</a>
@@ -77,7 +77,7 @@
       <div class="container my-auto">
         <div class="row">
           <div class="col-lg-8 mx-auto">
-            <h1>Welcome</h1>
+            <h1>Welcome To AggieSTEMS <br>Digital Library</h1>
             <a class="btn btn-primary btn-xl js-scroll-trigger" href="#about">Find Out More</a>
           </div>
         </div>

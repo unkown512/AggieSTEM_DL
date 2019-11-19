@@ -237,16 +237,34 @@ def recov_pw():
 def manage_users():
   if(request.method == 'GET'):
     '''
-    TODO: Get all users and display on page
-    MODEL TEAM: handle the call to user_manager.get_all_users()
+    TODO:
+    MODEL TEAM:
 
-    TO GET PARARMS BASED ON ID:
+       1) Finish user_manager.last_login(db,user)
+
+       2) group_manager.get_all_groups(db, username)
 
     username = request.args.get('ID')
 
-    This can change based on a version of python, so could be request(s)
     '''
-    return render_template('manage_users.html', user=current_user.username)
+    try:
+      client = pymongo.MongoClient("mongodb://localhost:27017/")
+    except pymongo.errors.ServerSelectionTimeoutError as err:
+      print(err)
+    db = client["AggieSTEM"]
+    temp = user_manager.get_all_users(db)
+    data = []
+    for row in temp:
+      tmp = []
+      tmp.append(row['username'])
+      tmp.append(row['position'])
+      tmp.append(row['access_level'])
+      tmp.append(row['email'])
+      tmp.append(row['phone'])
+      tmp.append("bob")
+      tmp.append("TBA")
+      data.append(tmp)
+    return render_template('manage_users.html', user=current_user.username, data = data)
   elif(request.method == 'POST'):
     return render_template('manage_users.html', user=current_user.username)
   else:
@@ -263,6 +281,7 @@ def manage_groups():
     TO GET PARARMS BASED ON ID:
 
     username = request.args.get('ID')
+    groups = group_manage.<method>
 
     This can change based on a version of python, so could be request(s)
     '''
@@ -278,26 +297,30 @@ def message_users():
   # TODO: CHECK IF USER IS ADMIN
   if(request.method == 'GET'):
     '''
-    TODO: Get all users and display on page
-    MODEL TEAM: Return all users info from get_all_users()
-    (SAME AS MANAGE_USERS VIEW)
+    TODO:
+    MODEL TEAM:
 
-    TODO PAGE: Select users individualy, by group, or select all
+       1) group_manager.get_all_groups(db, username)
+
+    username = request.args.get('ID')
+
     '''
-    temp = user_manager.get_all_users()
+    try:
+      client = pymongo.MongoClient("mongodb://localhost:27017/")
+    except pymongo.errors.ServerSelectionTimeoutError as err:
+      print(err)
+    db = client["AggieSTEM"]
+    temp = user_manager.get_all_users(db)
     # TODO: make subarray of relevent columns, username[0], phonenumber[4], groups[5]
     data = []
-    groups = set()
+    groups = ["bob", "jan", "don"]
     for row in temp:
-      for group in row[5].split(", "):
-        groups.add(group)
       tmp = []
-      tmp.append(row[0])
-      tmp.append(row[4])
-      tmp.append(row[5])
+      tmp.append(row['user_id'])
+      tmp.append(row['username'])
+      tmp.append(row['phone'])
+      tmp.append("bob") #Todo replace with group_manager.get_all_groups(db, username)
       data.append(tmp)
-
-    print(groups)
 
     return render_template('message_users.html', user=current_user.username, data = data, groups = list(groups))
   elif(request.method == 'POST'):

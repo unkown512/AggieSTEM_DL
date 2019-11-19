@@ -1,22 +1,15 @@
-/* 
+/*
   Add databtales to display user data or w.e
 */
-var dataSet = [
-  [ "Tiger_Nixon", "Professor", "3", "tiger_nixon@tamu.edu", "610-432-2121", "Star, Spec","01/13/2019(21:45 GMT)"],
-  [ "Garrett_Winters", "Research Assistant", "1", "garrett_winters@tamu.edu", "230-845-5846", "Web, Hrbb","10/24/2019(5:30 GMT)"],
-  [ "James_Brown", "Research Assistant", "1", "j_brown@tamu.edu", "430-765-3446", "Spy, Nxt","08/01/2019(8:32 GMT)"]
-];
-
-
 $(document).ready(function() {
   $('#users_table').DataTable( {
     responsive: true,
     data: dataSet,
     columns: [
-      { 
+      {
         title: "User",
         "render": function(data, type, row, meta) {
-          data = '<a href="userProfile?username=' + row[0] 
+          data = '<a href="userProfile?username=' + row[0]
             + '&email=' + row[3]
             + '&phonenumber=' + row[4]
             + '&type=1">' + data + '</a>';
@@ -29,7 +22,7 @@ $(document).ready(function() {
       { title: "Phone Number" },
       { title: "Groups" },
       { title: "Last Login" },
-      
+
     ]
   } );
 });

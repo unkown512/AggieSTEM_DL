@@ -81,20 +81,17 @@ def Setup(db, client):
   library_table = db["library"]
   content_table = db["content"]
 
-  db['user'].find_one_and_update({'user_id':0}, {'$set':{'username': 'Andy', 'email':'andy@tamu.edu', 'access_level':3, 'position':'Admin'}})
-  db['security'].find_one_and_update({'user_id':0}, {'$set':{'password': 'Andy1234'}})
-
   user = User(user_id=0,
     username='admin#1510',
     access_level=3,
-    email='chingy1510@tamu.edu',
-    phone='254-555-0123',
+    email='djbey@protonmail.com',
+    phone='8322740571',
     position='Admin',
-    security_questions=['What does a duck do?', 'How does a fox quack?'])
+    security_questions=['RTDS', 'Blank Map'])
 
   security = Security(user_id=0,
-    password='pw1234',
-    security_answers=['quack', 'bark'])
+    password='Sedrftgy2@',
+    security_answers=['tamu', 'DIME'])
 
   group = Group(group_id=0,
     owner_id=0,
@@ -116,7 +113,6 @@ def Setup(db, client):
 
 
   # Create the tables by injecting the dummy data
-  print("check 1")
   user_table.insert_one(json.loads(user.to_json()))
   user_library_access_table.insert_one(json.loads(access.to_json()))
   security_table.insert_one(json.loads(security.to_json()))
@@ -125,7 +121,6 @@ def Setup(db, client):
   content_table.insert_one(json.loads(content.to_json()))
 
 
-  print("check 2")
   # Create indicies
   user_table.create_index([('user_id', pymongo.TEXT)], name='user_search', default_language='english')
 

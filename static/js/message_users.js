@@ -2,23 +2,22 @@
   Add databtales to display user data or w.e
 */
 
-console.log(groupSet);
 // Add checkbox and multiselect bootstrap and select all checkbox
 // https://mdbootstrap.com/docs/jquery/forms/multiselect/
 $(document).ready(function() {
+
    var option = '';
    for(var i=0; i<groupSet.length; i++) {
-     console.log(groupSet[i]);
      option += '<option value="' + groupSet[i] + '">' + groupSet[i] + '</option>';
    }
    $('#boot-multiselect-demo').append(option);
+
    $('#boot-multiselect-demo').multiselect({
        includeSelectAllOption: true,
        buttonWidth: 250,
        enableFiltering: true
    });
    function cbDropdown(column) {
-     //console.log(button)
     return $('<ul>', {
       'class': 'cb-dropdown'
     }).appendTo($('<div>', {
@@ -41,22 +40,26 @@ $(document).ready(function() {
         orderable: false
       },
       {
-        data: null,
+        title: "Send",
         defaultContent: '',
         className: 'select-checkbox',
-        orderable: false
+        data: null,
+        orderable: false,
+        "createdCell": function(td, cellData, rowData, row, col) {
+          $(td).attr('id', rowData[0]);
+        }
       },
       {
         title: "User",
-        data: 0
-      },
-      {
-        title: "Phone Number",
         data: 1
       },
       {
-        title: "Groups",
+        title: "Phone Number",
         data: 2
+      },
+      {
+        title: "Groups",
+        data: 3
       },
 
     ],
@@ -65,4 +68,23 @@ $(document).ready(function() {
       selector: 'td.select-checkbox'
         },
   }); // End of datatables
+
+  $('#boot-multiselect-demo').on('change', function() {
+    var selected_groups = $('#boot-multiselect-demo').val();
+    table.rows().data().each(function (value, index) {
+      var has_group = 0;
+      var row = table.row(index).node();
+      for(var i=0; i<selected_groups.length; i++) {
+        if(value.includes(selected_groups[i])) {
+          has_group = 1;
+          break;
+        }
+      }
+      if(has_group == 1) {
+        $(row).addClass('selected');
+      } else {
+        $(row).removeClass('selected');
+      }
+    });
+  });
 }); // End of document on ready
