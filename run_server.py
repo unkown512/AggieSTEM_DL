@@ -10,6 +10,7 @@ from flask import Flask
 from flask import request
 from flask import render_template, redirect
 from flask import url_for
+from flask import send_file
 from flask_mobility import Mobility
 from flask_mobility.decorators import mobile_template, mobilized
 from flask_bootstrap import Bootstrap
@@ -22,7 +23,6 @@ from wtforms.validators import InputRequired, Email, Length
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user, UserMixin
 from wtforms import ValidationError
-import phonenumbers
 
 # Model Imports for storing and retrieving user information
 from model import user_manager
@@ -32,6 +32,8 @@ import pymongo
 
 # Start of server
 app = Flask(__name__)
+APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+
 Mobility(app)
 Bootstrap(app)
 app.config['SECRET_KEY'] = user_manager.unique_key()
@@ -91,18 +93,6 @@ class RegisterForm(FlaskForm):
     conf_password = PasswordField('Confirm Password', validators=[InputRequired(), Length(min=8, max=80)])
     email = StringField('Email', validators=[InputRequired(), Email(message='Invalid Email'), Length(max=250)])
     conf_email = StringField('Confirm Email', validators=[InputRequired(), Email(message='Invalid Email'), Length(max=250)])
-
-    def validate_phone(form, field):
-      if(len(field.data) > 16):
-        raise ValidationError('Invalid phone number.')
-      try:
-        input_number = phonenumbers.parse(field.data)
-        if(not (phonenumbers.is_valid_number(input_number))):
-          raise ValidationError('Invalid phone number.')
-      except:
-        input_number = phonenumbers.parse("+1"+field.data)
-        if(not (phonenumbers.is_valid_number(input_number))):
-          raise ValidationError('Invalid phone number.')
 
 class ForgotUser(FlaskForm):
   email = StringField('Email', validators=[InputRequired(), Email(message='Invalid Email'), Length(max=250)])
@@ -177,8 +167,14 @@ def signup():
 
         NOTE: TEMP_LOGIN_DB WILL BE REMOVED ONCE 'user_manager' is complete!!!
       '''
-      user_manager.add_user(form.username.data, form.password.data, form.email.data)
-      TEMP_LOGIN_DB.append([form.username.data, form.password.data, form.email.data])
+      user_data = [form.username.data, form.password.data, form.email.data,
+        form.position.data, form.phone.data]
+      try:
+        client = pymongo.MongoClient("mongodb://localhost:27017/")
+      except pymongo.errors.ServerSelectionTimeoutError as err:
+        print(err)
+      db = client["AggieSTEM"]
+      user_manager.add_user(db, user_data)
       return redirect(url_for('signin'))
     else:
       print("INVALID FORM")
@@ -191,27 +187,24 @@ def signup():
 @login_required
 def userProfile():
   if(request.method == 'GET'):
-    type = request.args.get('type')
-    '''
-      This needs to be changed...It is shit for now
-    '''
-    if(type):
-      print("HERE2")
-      username = request.args.get('username')
-      email = request.args.get('email')
-      phonenumber = request.args.get('phonenumber')
+    username = current_user.username
+    try:
+      client = pymongo.MongoClient("mongodb://localhost:27017/")
+    except pymongo.errors.ServerSelectionTimeoutError as err:
+      print(err)
+    db = client["AggieSTEM"]
+    userdata = user_manager.get_user_profile(db, username)
+    phonenumber = userdata['phone']
+    email = userdata['email']
+    position = userdata['position']
+    if(position == "D"):
+      position = "Director"
+    elif(position == "S"):
+      position = "Senior Doc"
     else:
-      # Get user info from TEMP_LOGIN_DB -> TODO: Replace with query
-      # userdata = user_manager.get_user_profile(username)
-      username = current_user.username
-      for user in TEMP_LOGIN_DB:
-        if(username == user[0]):
-          email = user[2]
-          break
-      phonenumber = "979-999-9999"
-    email = "FFS"
+      position = "Researcher"
     return render_template('userProfile.html', user=username,
-      email= email, phonenumber=phonenumber)
+      email= email, phonenumber=phonenumber, position = position)
   elif(request.method == 'POST'):
     data = {}
     return render_template('userProfile.html', data=data)
@@ -225,6 +218,15 @@ def logout():
   User.remove_user(current_user.username)
   logout_user()
   return redirect(url_for('signin'))
+
+@app.route('/loadpdf')
+@login_required
+def loadpdf():
+  directory = os.path.join(APP_ROOT, 'data/')
+  pdf_name = "data_request_form.pdf"
+  docx_name = "data_request_form.docx"
+  dest = "/".join([directory, pdf_name])
+  return send_file(dest)
 
 # Recover Username Page
 @app.route('/recov_username', methods=['GET', 'POST'])

@@ -326,7 +326,7 @@ header.masthead p {
 
 .btn-primary:hover, .btn-primary:focus, .btn-primary:active {
   color: #fff;
-  background-color: #f8f9fa !important;
+  background-color: #808080 !important;
 }
 
 .btn-primary:active, .btn-primary:focus {

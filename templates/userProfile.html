@@ -17,7 +17,6 @@
 
     <!-- Custom fonts for this template -->
     <!-- <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css"> -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/fontawesome-free/css/all.min.css') }}">
     
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Merriweather:400,300,300italic,400italic,700,700italic,900,900italic' rel='stylesheet' type='text/css'>
@@ -68,10 +67,10 @@
                 <img src="https://www.jamf.com/jamf-nation/img/default-avatars/generic-user-purple.png" class="rounded-circle">
               </div>
               <div class="col-md-12 mx-auto user-detail-section1 text-center">
-                <a id="btn-upload" class="btn btn-primary btn-sm js-scroll-trigger" (click)="clearModal()" data-toggle="modal" data-target="#upload">Upload Image</a>
+                <a id="btn-upload" class="btn btn-primary btn-block js-scroll-trigger text-white" (click)="clearModal()" data-toggle="modal" data-target="#upload-img">Upload Image</a>
               </div>
-              <div class="col-md-12 mx-auto user-detail-section1 text-center">
-                <a id="btn-contact" class="btn btn-primary btn-sm js-scroll-trigger" (click)="clearModal()" data-toggle="modal" data-target="#contact">Contact</a>
+              <div class="col-md-12 mx-auto user-detail-section2 text-center">
+                <a id="btn-contact" class="btn btn-primary btn-block js-scroll-trigger text-white" (click)="clearModal()" data-toggle="modal" data-target="#contact">Contact</a>
               </div>
             </div>
           </div>
@@ -81,10 +80,10 @@
                 <div class="row col-12">
                   <div class="col-md-8 col-sm-6 col-12 profile-header-section1 pull-left">
                     <h1>{{ user }}</h1>
-                    <h5>Researcher</h5>
+                    <h5>{{ position }}</h5>
                   </div>
                   <div class="col-md-4 col-sm-6 col-12 profile-header-section1 text-right pull-rigth">
-                    <a href="#" class="btn btn-primary btn-block responsive-width">Request Data Access</a>
+                    <a id="btn-request" href="#" class="btn btn-primary btn-block " (click)="clearModal()" data-toggle="modal" data-target="#request-data-access">Request Data Access</a>
                   </div>
                 </div>
               </div>
@@ -132,7 +131,7 @@
                             <label>Phone Number</label>
                           </div>
                           <div class="col-md-6">
-                            <p>979-xxx-xxx</p>
+                              <p>{{phonenumber}}</p>
                           </div>
                         </div>
                       </div>
@@ -176,6 +175,7 @@
       </div>
     </div>
 
+    <!-- CONTACT POPUP -->
     <div class="modal fade" id="contact" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -217,7 +217,84 @@
         </div>
       </div>
     </div>
-    
+   
+    <!-- UPLOAD IMAGE POPUP -->
+    <div class="modal fade" id="upload-img" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Upload Profile Image</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="container">
+							<div class="panel panel-default">
+								<div class="panel-body">
+
+									<!-- Standar Form -->
+									<h4>Select files from your computer</h4>
+									<form action="" method="post" enctype="multipart/form-data" id="js-upload-form">
+										<div class="form-inline">
+											<div class="form-group">
+												<input type="file" name="files[]" id="js-upload-files" multiple>
+											</div>
+											<button type="submit" class="btn btn-sm btn-primary" id="js-upload-submit">Upload files</button>
+										</div>
+									</form>
+
+									<!-- Drop Zone -->
+									<h4>Or drag and drop files below</h4>
+									<div class="upload-drop-zone" id="drop-zone">
+										Just drag and drop files here
+									</div>
+
+									<!-- Upload Finished -->
+									<div class="js-upload-finished">
+										<h3>Processed files</h3>
+										<div class="list-group">
+											<!-- <a href="#" class="list-group-item list-group-item-success"><span class="badge alert-success pull-right">Success</span>image-01.jpg</a>
+											<a href="#" class="list-group-item list-group-item-success"><span class="badge alert-success pull-right">Success</span>image-02.jpg</a> -->
+										</div>
+									</div>
+								</div>
+							</div>
+						</div> <!-- /container -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Request data access  POPUP -->
+    <div class="modal fade" id="request-data-access" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Request Data Access Form</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <div class="modal-body">
+          <div class="modal-body">
+            <div class="form-group">
+              <p for="msj">Download the below form and send to your senior doc {XX}.
+              </p>
+            </div>
+            <div class="form-group">
+              <object class="me_pdf" id="pdfdata" data="/loadpdf" type="text/html"></object>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" (click)="openModal()" data-dismiss="modal">Download</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
   </body>      
   <footer class="py-5 bg-dark">
     <div class="container">

@@ -32,8 +32,10 @@ def validate_user(db, user, pw):
 
   return False
 
-def add_user(db, user, pw, email):
-  # TODO Get the next valid user_id
+def add_user(db, user_data):
+  '''
+    user_data = [username, password, email, position, phone]
+  '''
   us = db['user'].find()
   next_id = 0
   for i in us:
@@ -41,20 +43,29 @@ def add_user(db, user, pw, email):
       next_id = i['user_id']
   next_id += 1
 
+  # Access Levels. 1 will be for a user that has some content to view
+  access_level = 0
+  if(user_data[3] == "D"):
+    access_level = 3
+  elif(user_data[3] == "S"):
+    access_level = 2
+  else:
+    access_level = 0
+
   # Create the data JSON
   db['user'].insert_one({
       'user_id': next_id,
-      'username': user,
+      'username': user_data[0],
       'access_level': 0,
-      'email': email,
-      'phone': '',
-      'position': '',
+      'email': user_data[2],
+      'phone': user_data[4],
+      'position': user_data[3],
       'security_questions': []
   })
 
   db['security'].insert_one({
       'user_id': next_id,
-      'password': pw,
+      'password': user_data[1],
       'security_answers': []
   })
 
