@@ -16,13 +16,13 @@
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/fonts/material-design-iconic-font.min.css')}}">
 <!--===========================================================================================================================================-->
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/animation/animate.css')}}">
-<!--===========================================================================================================================================-->	
+<!--===========================================================================================================================================-->  
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/hamburgers.min.css')}}">
 <!--===========================================================================================================================================-->
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/animation/animsition.min.css')}}">
 <!--===========================================================================================================================================-->
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/select2.min.css')}}">
-<!--===========================================================================================================================================-->	
+<!--===========================================================================================================================================-->  
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/daterangepicker.css')}}">
 <!--===========================================================================================================================================-->
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/util.css')}}">
@@ -43,6 +43,8 @@
                 <!--data-validate = "Valid email is: a@b.c"-->
                 {{ form.hidden_tag() }}
                 {{ wtf.form_field(form.username) }}
+                {{ wtf.form_field(form.position) }}
+                {{ wtf.form_field(form.phone) }}
                 {{ wtf.form_field(form.password) }}
                 {{ wtf.form_field(form.conf_password) }}
                 {{ wtf.form_field(form.email) }}

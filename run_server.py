@@ -21,6 +21,8 @@ from wtforms import StringField, PasswordField, BooleanField, RadioField, Select
 from wtforms.validators import InputRequired, Email, Length
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user, UserMixin
+from wtforms import ValidationError
+import phonenumbers
 
 # Model Imports for storing and retrieving user information
 from model import user_manager
@@ -83,10 +85,24 @@ class RegisterForm(FlaskForm):
     #phone number
     username = StringField('Username <p class="text-info">First Initial + Last Name<p>'
       , validators=[InputRequired(), Length(min=4, max=15)])
+    position = SelectField('Position', validators=[InputRequired()], choices=[('',''),('D','Director'),('S','Senior Doc'),('R','Researcher')])
+    phone = StringField('Phone', validators=[InputRequired()])
     password = PasswordField('Password', validators=[InputRequired(), Length(min=8, max=80)])
     conf_password = PasswordField('Confirm Password', validators=[InputRequired(), Length(min=8, max=80)])
     email = StringField('Email', validators=[InputRequired(), Email(message='Invalid Email'), Length(max=250)])
     conf_email = StringField('Confirm Email', validators=[InputRequired(), Email(message='Invalid Email'), Length(max=250)])
+
+    def validate_phone(form, field):
+      if(len(field.data) > 16):
+        raise ValidationError('Invalid phone number.')
+      try:
+        input_number = phonenumbers.parse(field.data)
+        if(not (phonenumbers.is_valid_number(input_number))):
+          raise ValidationError('Invalid phone number.')
+      except:
+        input_number = phonenumbers.parse("+1"+field.data)
+        if(not (phonenumbers.is_valid_number(input_number))):
+          raise ValidationError('Invalid phone number.')
 
 class ForgotUser(FlaskForm):
   email = StringField('Email', validators=[InputRequired(), Email(message='Invalid Email'), Length(max=250)])
