@@ -71,7 +71,7 @@ section {
 
 ::selection {
   color: #fff;
-  background: #FFF;
+  background: #500000;
   text-shadow: none;
 }
 
@@ -167,7 +167,7 @@ img::-moz-selection {
   #mainNav.navbar-shrink .navbar-brand {
     color: #500000;
   }
-  
+
   #mainNav.navbar {
     background-color: #fff !important;
   }
