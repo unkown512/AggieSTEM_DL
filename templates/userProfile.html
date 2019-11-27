@@ -278,17 +278,18 @@
             </button>
           </div>
           <div class="modal-body">
-          <div class="modal-body">
-            <div class="form-group">
-              <p for="msj">Download the below form and send to your senior doc {XX}.
-              </p>
+            <div class="modal-body">
+              <div class="form-group">
+                <p for="msj">Download the below form and send to your senior doc {XX}.
+                </p>
+              </div>
+              <div class="form-group">
+                <object class="me_pdf" id="pdfdata" data="/loadpdf" type="text/html"></object>
+              </div>
             </div>
-            <div class="form-group">
-              <object class="me_pdf" id="pdfdata" data="/loadpdf" type="text/html"></object>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" (click)="openModal()" data-dismiss="modal">Download</button>
             </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary" (click)="openModal()" data-dismiss="modal">Download</button>
           </div>
         </div>
       </div>
