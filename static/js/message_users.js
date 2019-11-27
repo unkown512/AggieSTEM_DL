@@ -55,6 +55,9 @@ $(document).ready(function() {
       },
       {
         title: "Phone Number",
+        "render": function(data, type, row, meta) {
+          return format_phonenumber(row[2]);
+        },
         data: 2
       },
       {

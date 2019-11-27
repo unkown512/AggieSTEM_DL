@@ -19,7 +19,11 @@ $(document).ready(function() {
       { title: "Position" },
       { title: "Access" },
       { title: "Email" },
-      { title: "Phone Number" },
+      { title: "Phone Number",
+        "render": function(data, type, row, meta) {
+          return format_phonenumber(row[4]);
+        }
+      },
       { title: "Groups" },
       { title: "Last Login" },
 
