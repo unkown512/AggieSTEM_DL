@@ -135,7 +135,7 @@ def signin():
       user = form.username.data
       pw = form.password.data
       try:
-        client = pymongo.MongoClient("mongodb://localhost:27017/")
+        client = pymongo.MongoClient("mongodb://128.194.140.214:27017/")
       except pymongo.errors.ServerSelectionTimeoutError as err:
         print(err)
       db = client["AggieSTEM"]
@@ -170,7 +170,7 @@ def signup():
       user_data = [form.username.data, form.password.data, form.email.data,
         form.position.data, form.phone.data]
       try:
-        client = pymongo.MongoClient("mongodb://localhost:27017/")
+        client = pymongo.MongoClient("mongodb://128.194.140.214:27017/")
       except pymongo.errors.ServerSelectionTimeoutError as err:
         print(err)
       db = client["AggieSTEM"]
@@ -189,7 +189,7 @@ def userProfile():
   if(request.method == 'GET'):
     username = current_user.username
     try:
-      client = pymongo.MongoClient("mongodb://localhost:27017/")
+      client = pymongo.MongoClient("mongodb://128.194.140.214:27017/")
     except pymongo.errors.ServerSelectionTimeoutError as err:
       print(err)
     db = client["AggieSTEM"]
@@ -266,7 +266,7 @@ def manage_users():
 
     '''
     try:
-      client = pymongo.MongoClient("mongodb://localhost:27017/")
+      client = pymongo.MongoClient("mongodb://128.194.140.214:27017/")
     except pymongo.errors.ServerSelectionTimeoutError as err:
       print(err)
     db = client["AggieSTEM"]
@@ -324,7 +324,7 @@ def message_users():
 
     '''
     try:
-      client = pymongo.MongoClient("mongodb://localhost:27017/")
+      client = pymongo.MongoClient("mongodb://128.194.140.214:27017/")
     except pymongo.errors.ServerSelectionTimeoutError as err:
       print(err)
     db = client["AggieSTEM"]
