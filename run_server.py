@@ -181,7 +181,7 @@ def signup():
 def userProfile():
   if(request.method == 'GET'):
     username = current_user.username
-    db = db_client(0)
+    db = db_client()
     userdata = user_manager.get_user_profile(db, username)
     phonenumber = userdata['phone']
     email = userdata['email']

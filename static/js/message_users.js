@@ -35,14 +35,14 @@ $(document).ready(function() {
     groups: groupSet,
     buttons: [
       {
-        text: 'Send Message',
+        text: '<a id="btn-create" (click)="clearModal()" data-toggle="modal" data-target="#send_msg">Send Message</a>',
         action: function(e, dt, node, config) {
           //TODO
           console.log('Button Clicked');
         }
       },
       {
-        text: 'Create Message',
+        text: '<a id="btn-create" (click)="clearModal()" data-toggle="modal" data-target="#create_msg">Create Message</a>',
         action: function(e, dt, node, config) {
           //TODO
           console.log('Button Clicked');
@@ -93,6 +93,7 @@ $(document).ready(function() {
     }
   }); // End of datatables
 
+  // Multi-select row logic based on groups
   $('#boot-multiselect-demo').on('change', function() {
     var selected_groups = $('#boot-multiselect-demo').val();
     table.rows().data().each(function (value, index) {
