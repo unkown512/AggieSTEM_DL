@@ -3,6 +3,7 @@ import pymongo
 import datetime
 import json
 import sys
+from werkzeug.security import generate_password_hash, check_password_hash
 
 '''
    Model team to fill in interations with DB, salts, and encryption for user information
@@ -28,6 +29,9 @@ def validate_user(db, user, pw):
     return False
 
   if u_pw['password'] == pw:
+    return True
+  
+  if check_password_hash(u_pw['password'], pw):
     return True
 
   return False
@@ -65,7 +69,7 @@ def add_user(db, user_data):
 
   db['security'].insert_one({
       'user_id': next_id,
-      'password': user_data[1],
+      'password': generate_password_hash(user_data[1]),
       'security_answers': []
   })
 
