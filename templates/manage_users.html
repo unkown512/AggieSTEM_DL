@@ -38,7 +38,9 @@
     <!--Garrett DataTables Stuff-->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.dataTables.min.css">
-   
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dataTables/buttons.dataTables.min.css')  }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dataTables/select.dataTables.min.css')  }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='js/dataTables/Editor-1.9.2/css/editor.dataTables.min.css')  }}">
 
   </head>
 
@@ -78,13 +80,13 @@
 
     <!-- TODO GARRETT -->
     <div class="users" style="margin-top:1%;margin-right:10%;margin-left:10%">
-      <table id="users_table" class="display responsive nowrap" width="100%"></table>
+      <table id="users_table"  class="display responsive nowrap" cellspacing="0" width="100%"></table>
     </div>
     
   </body>
 
   <script>
-    var dataSet = {{ data|safe }};
+    var dataSet = {{ data|safe }}; 
   </script>
 
   <footer class="py-5 bg-dark">
@@ -103,22 +105,20 @@
 
     <!-- Plugin JavaScript -->
     <!-- <script src="/vendor/jquery-easing/jquery.easing.min.js"></script> -->
-    <script src="{{ url_for('static', filename='vendor/jquery-easing/jquery.easing.min.js') }}"></script>
-
-    <!-- <script src="/vendor/scrollreveal/scrollreveal.min.js"></script> -->
+    <!-- <script src="{{ url_for('static', filename='vendor/jquery-easing/jquery.easing.min.js') }}"></script> -->
     <script src="{{ url_for('static', filename='vendor/scrollreveal/scrollreveal.min.js') }}"></script>
-
-    <!-- <script src="/vendor/magnific-popup/jquery.magnific-popup.min.js"></script> -->
-    <script src="{{ url_for('static', filename='vendor/magnific-popup/jquery.magnific-popup.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/magnific-popup/jquery.magnific-popup.min.js') }}"></script> 
 
     <!-- DataTable scripts -->
     <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>   
     <script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.6.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/select/1.3.1/js/dataTables.select.min.js"></script>
+    <script src="{{ url_for('static', filename='js/dataTables/Editor-1.9.2/js/dataTables.editor.min.js') }}"></script>
 
     <!-- Custom scripts for this template -->
     <script src="{{ url_for('static', filename='js/creative.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/phonenumber.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/message.js') }}"></script>
     <script src="{{ url_for('static', filename='js/manage_users.js') }}"></script>
 
     

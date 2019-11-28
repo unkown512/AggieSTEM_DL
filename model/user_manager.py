@@ -56,7 +56,7 @@ def add_user(db, user_data):
   db['user'].insert_one({
       'user_id': next_id,
       'username': user_data[0],
-      'access_level': 0,
+      'access_level': access_level,
       'email': user_data[2],
       'phone': user_data[4],
       'position': user_data[3],
@@ -82,6 +82,10 @@ def get_all_users(db):
     data.append(i)
 
   return data
+
+def update_user(db, user_data):
+  #TODO
+  return True
 
 def delete_user(db, user):
   # TODO

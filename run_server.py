@@ -4,7 +4,7 @@
     us to avoid any responsibility.
 '''
 import os
-
+import json
 # Flask Server Imports
 from flask import Flask
 from flask import request
@@ -134,11 +134,8 @@ def signin():
     if(form.validate_on_submit()):
       user = form.username.data
       pw = form.password.data
-      try:
-        client = pymongo.MongoClient("mongodb://128.194.140.214:27017/")
-      except pymongo.errors.ServerSelectionTimeoutError as err:
-        print(err)
-      db = client["AggieSTEM"]
+
+      db = db_client()
 
       if(user_manager.validate_user(db, user, pw)):
         user_list.append(User(user, form.password.data, 1))
@@ -169,11 +166,7 @@ def signup():
       '''
       user_data = [form.username.data, form.password.data, form.email.data,
         form.position.data, form.phone.data]
-      try:
-        client = pymongo.MongoClient("mongodb://128.194.140.214:27017/")
-      except pymongo.errors.ServerSelectionTimeoutError as err:
-        print(err)
-      db = client["AggieSTEM"]
+      db = db_client()
       user_manager.add_user(db, user_data)
       return redirect(url_for('signin'))
     else:
@@ -188,11 +181,7 @@ def signup():
 def userProfile():
   if(request.method == 'GET'):
     username = current_user.username
-    try:
-      client = pymongo.MongoClient("mongodb://128.194.140.214:27017/")
-    except pymongo.errors.ServerSelectionTimeoutError as err:
-      print(err)
-    db = client["AggieSTEM"]
+    db = db_client(0)
     userdata = user_manager.get_user_profile(db, username)
     phonenumber = userdata['phone']
     email = userdata['email']
@@ -265,26 +254,39 @@ def manage_users():
     username = request.args.get('ID')
 
     '''
-    try:
-      client = pymongo.MongoClient("mongodb://128.194.140.214:27017/")
-    except pymongo.errors.ServerSelectionTimeoutError as err:
-      print(err)
-    db = client["AggieSTEM"]
-    temp = user_manager.get_all_users(db)
-    data = []
-    for row in temp:
-      tmp = []
-      tmp.append(row['username'])
-      tmp.append(row['position'])
-      tmp.append(row['access_level'])
-      tmp.append(row['email'])
-      tmp.append(row['phone'])
-      tmp.append("bob")
-      tmp.append("TBA")
-      data.append(tmp)
+    db = db_client()
+    user_list = user_manager.get_all_users(db)
+    temp = []
+    for row in user_list:
+      user_data = {}
+      user_data['uid'] = row['user_id']
+      user_data['username'] = row['username']
+      user_data['position'] = row['position']
+      user_data['access_level'] = row['access_level']
+      user_data['email'] = row['email']
+      user_data['phone'] = row['phone']
+      user_data['groups'] = ""
+      user_data['last_login'] = ""
+      temp.append(user_data)
+    data = {}
+    data['data'] = temp
     return render_template('manage_users.html', user=current_user.username, data = data)
   elif(request.method == 'POST'):
-    return render_template('manage_users.html', user=current_user.username)
+    db = db_client()
+    post_args = json.loads(request.values.get("data"))
+    if(post_args['action'] == "remove"):
+      #TODO: Delete user record
+      user_manager.delete_user(db, {})
+      return {}
+    else:
+      new_user_data = {}
+      new_user_data['data'] = []
+      for row in post_args['data']:
+        post_args['data'][row]['uid'] = row
+        new_user_data['data'].append(post_args['data'][row])
+      #TODO: Update user record
+      user_manager.update_user(db, new_user_data)
+      return new_user_data
   else:
     return render_template('index.html', user=current_user.username, error="TEST")
 
@@ -323,11 +325,7 @@ def message_users():
     username = request.args.get('ID')
 
     '''
-    try:
-      client = pymongo.MongoClient("mongodb://128.194.140.214:27017/")
-    except pymongo.errors.ServerSelectionTimeoutError as err:
-      print(err)
-    db = client["AggieSTEM"]
+    db = db_client()
     temp = user_manager.get_all_users(db)
     # TODO: make subarray of relevent columns, username[0], phonenumber[4], groups[5]
     data = []
@@ -346,6 +344,13 @@ def message_users():
   else:
     return render_template('index.html', user=current_user.username, error="TEST")
 
+def db_client():
+  try:
+    client = pymongo.MongoClient("mongodb://128.194.140.214:27017/")
+  except pymongo.errors.ServerSelectionTimeoutError as err:
+    print(err)
+  db = client["AggieSTEM"]
+  return db
 
 if __name__ == "__main__":
   IP = '128.194.140.214'
