@@ -321,22 +321,23 @@ def message_users():
     MODEL TEAM:
 
        1) group_manager.get_all_groups(db, username)
-
-    username = request.args.get('ID')
-
     '''
     db = db_client()
-    temp = user_manager.get_all_users(db)
-    # TODO: make subarray of relevent columns, username[0], phonenumber[4], groups[5]
-    data = []
-    groups = ["bob", "jan", "don"]
-    for row in temp:
-      tmp = []
-      tmp.append(row['user_id'])
-      tmp.append(row['username'])
-      tmp.append(row['phone'])
-      tmp.append("bob") #Todo replace with group_manager.get_all_groups(db, username)
-      data.append(tmp)
+    user_list = user_manager.get_all_users(db)
+
+    groups = ["Camp A", "Camp B", "Camp C", "Camp D"]
+    temp = []
+    i = 0
+    for row in user_list:
+      user_data = {}
+      user_data['uid'] = row['user_id']
+      user_data['username'] = row['username']
+      user_data['phone'] = row['phone']
+      user_data['groups'] = groups[i] #Make sure it works with multigroups/user
+      temp.append(user_data)
+      i += 1
+    data = {}
+    data['data'] = temp
 
     return render_template('message_users.html', user=current_user.username, data = data, groups = list(groups))
   elif(request.method == 'POST'):

@@ -15,8 +15,11 @@ $(document).ready(function() {
    $('#boot-multiselect-demo').multiselect({
        includeSelectAllOption: true,
        buttonWidth: 250,
-       enableFiltering: true
+       enableFiltering: true,
+       nonSelectedText: 'Select by Group'
    });
+
+
    function cbDropdown(column) {
     return $('<ul>', {
       'class': 'cb-dropdown'
@@ -25,15 +28,33 @@ $(document).ready(function() {
     }).appendTo(column));
   }
 
+  console.log(dataSet);
   var table = $('#message_users_table').DataTable( {
     responsive: true,
-    data: dataSet,
+    data: dataSet['data'],
     groups: groupSet,
+    buttons: [
+      {
+        text: 'Send Message',
+        action: function(e, dt, node, config) {
+          //TODO
+          console.log('Button Clicked');
+        }
+      },
+      {
+        text: 'Create Message',
+        action: function(e, dt, node, config) {
+          //TODO
+          console.log('Button Clicked');
+        }
+      }
+    ],
+    idSrc: 'uid',
     dom: 'Blfrtip',
-    buttons: [],
-    language: {},
+    order: [[1, 'asc']],
     columns: [
       {
+        title: "",
         data: null,
         defaultContent: '',
         className: 'control',
@@ -46,30 +67,30 @@ $(document).ready(function() {
         data: null,
         orderable: false,
         "createdCell": function(td, cellData, rowData, row, col) {
-          $(td).attr('id', rowData[0]);
+          $(td).attr('id', rowData['uid']);
         }
       },
       {
         title: "User",
-        data: 1
+        data: "username"
       },
       {
         title: "Phone Number",
         "render": function(data, type, row, meta) {
-          return format_phonenumber(row[2]);
+          return format_phonenumber(row['phone']);
         },
-        data: 2
+        data: "phone"
       },
       {
         title: "Groups",
-        data: 3
+        data: "groups"
       },
 
     ],
     select: {
-      style:    'multi',
+      style:  'multi',
       selector: 'td.select-checkbox'
-        },
+    }
   }); // End of datatables
 
   $('#boot-multiselect-demo').on('change', function() {
@@ -77,14 +98,10 @@ $(document).ready(function() {
     table.rows().data().each(function (value, index) {
       var has_group = 0;
       var row = table.row(index).node();
-      if(value.includes("Select all")) {
-        has_group = 1;
-      } else {
-        for(var i=0; i<selected_groups.length; i++) {
-          if(value.includes(selected_groups[i])) {
-            has_group = 1;
-            break;
-          }
+      for(var i=0; i<selected_groups.length; i++) {
+        if(value['groups'].includes(selected_groups[i])) {
+          has_group = 1;
+          break;
         }
       }
       if(has_group == 1) {
