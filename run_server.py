@@ -59,11 +59,14 @@ def init_login_manager(app):
   Class ForgotUser: Generates the flask wtf form for the forgot user action
   Class ForgotPw: Generates the flask wtf form for the forgot password action
 '''
+
+
 class User(UserMixin):
-  def __init__(self, username, password, id):
+  def __init__(self, username, password, id, access):
     self.id = id
     self.username = username
     self.password = password
+    self.access = access
 
   @staticmethod
   def get_user(user_id):
@@ -117,13 +120,13 @@ def load_user(user_id):
 @app.route('/')
 @login_required
 def landing_page():
-  return render_template('index.html', user=current_user.username)
+  return render_template('index.html', user=current_user.username, access_level=current_user.access)
 
 # Landing Page -- Redirects to login page if not logged in
 @app.route('/dashboard')
 @login_required
 def dashboard():
-  return render_template('index.html', user=current_user.username)
+  return render_template('index.html', user=current_user.username, access_level=current_user.access)
 
 # Login Page
 @app.route('/signin', methods=['GET', 'POST'])
@@ -138,10 +141,10 @@ def signin():
       db = db_client()
 
       if(user_manager.validate_user(db, user, pw)):
-        user_list.append(User(user, form.password.data, 1))
-        new_user = User(User, form.password.data, 1)
+        user_list.append(User(user, form.password.data, 1, user_manager.get_access_level(db, user)))
+        new_user = User(User, form.password.data, 1, user_manager.get_access_level(db, user))
         login_user(new_user, remember=form.remember.data)
-        return redirect(url_for('dashboard', user=current_user.username))
+        return redirect(url_for('dashboard', user=current_user.username, access_level=current_user.access))
       else:
         message = "Incorrect username or password"
     else:
@@ -255,6 +258,9 @@ def manage_users():
 
     '''
     db = db_client()
+    if(user_manager.get_access_level(db, current_user.username) < 2):
+      return redirect(url_for('dashboard', user=current_user.username, access_level=current_user.access))
+
     user_list = user_manager.get_all_users(db)
     temp = []
     for row in user_list:
@@ -270,7 +276,7 @@ def manage_users():
       temp.append(user_data)
     data = {}
     data['data'] = temp
-    return render_template('manage_users.html', user=current_user.username, data = data)
+    return render_template('manage_users.html', user=current_user.username, data = data, access_level=current_user.access)
   elif(request.method == 'POST'):
     db = db_client()
     post_args = json.loads(request.values.get("data"))
@@ -288,7 +294,7 @@ def manage_users():
       user_manager.update_user(db, new_user_data)
       return new_user_data
   else:
-    return render_template('index.html', user=current_user.username, error="TEST")
+    return render_template('index.html', user=current_user.username, error="TEST", access_level=current_user.access)
 
 @app.route('/manage_groups', methods=['GET', 'POST'])
 @login_required
@@ -305,11 +311,11 @@ def manage_groups():
 
     This can change based on a version of python, so could be request(s)
     '''
-    return render_template('manage_groups.html', user=current_user.username)
+    return render_template('manage_groups.html', user=current_user.username, access_level=current_user.access)
   elif(request.method == 'POST'):
-    return render_template('manage_groups.html', user=current_user.username)
+    return render_template('manage_groups.html', user=current_user.username, access_level=current_user.access)
   else:
-    return render_template('index.html', user=current_user.username, error="TEST")
+    return render_template('index.html', user=current_user.username, access_level=current_user.access, error="TEST")
 
 @app.route('/message_users', methods=['GET', 'POST'])
 @login_required
@@ -323,6 +329,9 @@ def message_users():
        1) group_manager.get_all_groups(db, username)
     '''
     db = db_client()
+    db = db_client()
+    if(user_manager.get_access_level(db, current_user.username) != 3):
+      return redirect(url_for('dashboard', user=current_user.username, access_level=current_user.access))
     user_list = user_manager.get_all_users(db)
 
     groups = ["Camp A", "Camp B", "Camp C", "Camp D"]
@@ -339,11 +348,12 @@ def message_users():
     data = {}
     data['data'] = temp
 
-    return render_template('message_users.html', user=current_user.username, data = data, groups = list(groups))
+    return render_template('message_users.html', user=current_user.username, data = data, groups = list(groups),
+      access_level=current_user.access)
   elif(request.method == 'POST'):
-    return render_template('message_users.html', user=current_user.username)
+    return render_template('message_users.html', user=current_user.username, access_level=current_user.access)
   else:
-    return render_template('index.html', user=current_user.username, error="TEST")
+    return render_template('index.html', user=current_user.username, error="TEST", access_level=current_user.access)
 
 def db_client():
   try:

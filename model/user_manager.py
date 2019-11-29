@@ -5,13 +5,16 @@ from werkzeug.security import generate_password_hash, check_password_hash
 def unique_key():
   return 'SUPPOSETOBEASECRET'
 
+def get_access_level(db, username):
+  # Return true if user access level is high enough
+  user = db['user'].find_one({'username': username})
+  return int(user['access_level'])
+
 
 def validate_user(db, username, pw):
   """Check if a user's credential is correct."""
   print('\n\nVALIDATING USER\n\n')
   user = db['user'].find_one({'username': username})
-
-  print(user)
 
   # Check if user exists
   if user is None:
