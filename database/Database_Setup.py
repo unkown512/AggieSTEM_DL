@@ -9,6 +9,7 @@ import datetime
 import pymongo
 import json
 
+from werkzeug.security import generate_password_hash
 
 # User account schema
 class User(Document):
@@ -70,6 +71,31 @@ def init_database():
     Setup(db, client)
   else:
     print("AggieSTEM DB already exists")
+
+# The same hash_all_passwords from model.user_manager
+def hash_all_password(db):
+  """Hash all passwords that's stored in plaintext previously."""
+  passwords = []
+  # Filter all users that needs update
+  for security in db['security'].find():
+    update = {}
+    # Check if password is hashed
+    if not security['password'].startswith('pbkdf2:'):
+      update['password'] = generate_password_hash(security['password'])
+
+    # Check if security answers are hashed
+    if any(not ans.startswith('pbkdf2:') for ans in security['security_answers']):
+      update['security_answers'] = [generate_password_hash(ans)
+                                    for ans in security['security_answers']]
+
+    if update:
+      passwords.append((security['user_id'], update))
+  print("Will update these users: ", passwords)
+
+  # Update these users
+  for user_id, update in passwords:
+    db['security'].update_one({'user_id': user_id}, {'$set': update})
+
 
 # Quickly sets up a local MongoDB database.
 def Setup(db, client):
@@ -138,6 +164,9 @@ def Setup(db, client):
 
   # Show that this name is successfully there
   dblist = client.list_database_names()
+
+  # Hash all previous passwords
+  hash_all_password(db)
 
 #----------------------------------------------------------------
 
