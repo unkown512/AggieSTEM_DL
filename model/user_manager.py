@@ -49,22 +49,20 @@ def add_user(db, username, password, email, position, phone):
     access_level_map = {'D': 3, 'S': 2}
     access_level = access_level_map.get(position, 0)
 
-    security_answers = []
-
     # Create the data JSON
     db['user'].insert_one(dict(
         user_id=next_id,
         username=username,
+        access_level=access_level,
         email=email,
         position=position,
         phone=phone,
-        access_level=access_level,
-        security_answers=security_answers))
+        security_questions=[]))
 
     db['security'].insert_one(dict(
         user_id=next_id,
         password=generate_password_hash(password),
-        security_answers=security_answers))
+        security_answers=[]))
 
     # Insert user into DB
     return True
