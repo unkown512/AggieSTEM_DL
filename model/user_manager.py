@@ -1,9 +1,9 @@
 """User manager manages user login and registration on databases."""
 from werkzeug.security import generate_password_hash, check_password_hash
-
+from uuid import uuid4
 
 def unique_key():
-  return 'SUPPOSETOBEASECRET'
+  return str(uuid4())
 
 def get_access_level(db, username):
   # Return true if user access level is high enough
@@ -118,6 +118,30 @@ def add_user(db, user_data):
 
   # Insert user into DB
   return True
+
+
+def hash_all_password(db):
+  """Hash all passwords that's stored in plaintext previously."""
+  passwords = []
+  # Filter all users that needs update
+  for security in db['security'].find():
+    update = {}
+    # Check if password is hashed
+    if not security['password'].startswith('pbkdf2:'):
+      update['password'] = generate_password_hash(security['password'])
+
+    # Check if security answers are hashed
+    if any(not ans.startswith('pbkdf2:') for ans in security['security_answers']):
+      update['security_answers'] = [generate_password_hash(ans)
+                                    for ans in security['security_answers']]
+
+    if update:
+      passwords.append((security['user_id'], update))
+  print("Will update these users: ", passwords)
+
+  # Update these users
+  for user_id, update in passwords:
+    db['security'].update_one({'user_id': user_id}, {'$set': update})
 
 
 def get_user_profile(db, user):
