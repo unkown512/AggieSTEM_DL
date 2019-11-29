@@ -1,9 +1,9 @@
 """User manager manages user login and registration on databases."""
 from werkzeug.security import generate_password_hash, check_password_hash
-
+from uuid import uuid4
 
 def unique_key():
-  return 'SUPPOSETOBEASECRET'
+  return str(uuid4())
 
 
 def validate_user(db, username, pw):
