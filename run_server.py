@@ -38,17 +38,17 @@ Mobility(app)
 Bootstrap(app)
 app.config['SECRET_KEY'] = user_manager.unique_key()
 '''
-    user_list needs to be changed to be inside a class/db
-    TEMP_LOGIN_DB is temporary for testing the login system.
+  user_list needs to be changed to be inside a class/db
+  TEMP_LOGIN_DB is temporary for testing the login system.
 '''
 # Initlaize login_manager
 def init_login_manager(app):
-    login_manager = LoginManager()
-    login_manager.init_app(app)
-    login_manager.login_view = 'signin'
-    user_list = list()
-    TEMP_LOGIN_DB = [] # Remove with insert into database
-    return(login_manager, user_list, TEMP_LOGIN_DB)
+  login_manager = LoginManager()
+  login_manager.init_app(app)
+  login_manager.login_view = 'signin'
+  user_list = list()
+  TEMP_LOGIN_DB = [] # Remove with insert into database
+  return(login_manager, user_list, TEMP_LOGIN_DB)
 
 (login_manager, user_list, TEMP_LOGIN_DB) = init_login_manager(app)
 
@@ -60,39 +60,39 @@ def init_login_manager(app):
   Class ForgotPw: Generates the flask wtf form for the forgot password action
 '''
 class User(UserMixin):
-    def __init__(self, username, password, id):
-        self.id = id
-        self.username = username
-        self.password = password
+  def __init__(self, username, password, id):
+    self.id = id
+    self.username = username
+    self.password = password
 
-    @staticmethod
-    def get_user(user_id):
-        for xuser in user_list:
-            if(xuser.id == user_id):
-                return xuser
+  @staticmethod
+  def get_user(user_id):
+    for xuser in user_list:
+      if(xuser.id == user_id):
+        return xuser
 
-    @staticmethod
-    def remove_user(user_name):
-        for xuser in user_list:
-            if(xuser.username == user_name):
-                user_list.remove(xuser)
+  @staticmethod
+  def remove_user(user_name):
+    for xuser in user_list:
+      if(xuser.username == user_name):
+        user_list.remove(xuser)
 
 class LoginForm(FlaskForm):
-    username = StringField('Username', validators=[InputRequired(), Length(min=4, max=15)])
-    #TODO: Password length should be much longer than 80
-    password = PasswordField('Password', validators=[InputRequired(), Length(min=8, max=80)])
-    remember = BooleanField('Remember me')
+  username = StringField('Username', validators=[InputRequired(), Length(min=4, max=15)])
+  #TODO: Password length should be much longer than 80
+  password = PasswordField('Password', validators=[InputRequired(), Length(min=8, max=80)])
+  remember = BooleanField('Remember me')
 
 class RegisterForm(FlaskForm):
-    #phone number
-    username = StringField('Username <p class="text-info">First Initial + Last Name<p>'
-      , validators=[InputRequired(), Length(min=4, max=15)])
-    position = SelectField('Position', validators=[InputRequired()], choices=[('',''),('D','Director'),('S','Senior Doc'),('R','Researcher')])
-    phone = StringField('Phone', validators=[InputRequired()])
-    password = PasswordField('Password', validators=[InputRequired(), Length(min=8, max=80)])
-    conf_password = PasswordField('Confirm Password', validators=[InputRequired(), Length(min=8, max=80)])
-    email = StringField('Email', validators=[InputRequired(), Email(message='Invalid Email'), Length(max=250)])
-    conf_email = StringField('Confirm Email', validators=[InputRequired(), Email(message='Invalid Email'), Length(max=250)])
+  #phone number
+  username = StringField('Username <p class="text-info">First Initial + Last Name<p>'
+    , validators=[InputRequired(), Length(min=4, max=15)])
+  position = SelectField('Position', validators=[InputRequired()], choices=[('',''),('D','Director'),('S','Senior Doc'),('R','Researcher')])
+  phone = StringField('Phone', validators=[InputRequired()])
+  password = PasswordField('Password', validators=[InputRequired(), Length(min=8, max=80)])
+  conf_password = PasswordField('Confirm Password', validators=[InputRequired(), Length(min=8, max=80)])
+  email = StringField('Email', validators=[InputRequired(), Email(message='Invalid Email'), Length(max=250)])
+  conf_email = StringField('Confirm Email', validators=[InputRequired(), Email(message='Invalid Email'), Length(max=250)])
 
 class ForgotUser(FlaskForm):
   email = StringField('Email', validators=[InputRequired(), Email(message='Invalid Email'), Length(max=250)])

@@ -11,6 +11,8 @@ def validate_user(db, username, pw):
   print('\n\nVALIDATING USER\n\n')
   user = db['user'].find_one({'username': username})
 
+  print(user)
+
   # Check if user exists
   if user is None:
     return False
@@ -18,18 +20,18 @@ def validate_user(db, username, pw):
   user_id = user['user_id']
 
   # Check user's password against what is stored in the database
-  pw = db['security'].find_one({'user_id': user_id})
+  db_pw = db['security'].find_one({'user_id': user_id})
 
   # Check if the password for the user exists
-  if pw is None:
+  if db_pw is None:
     return False
 
   # For backwards compatibility, treat password as unhashed first
-  if pw['password'] == pw:
+  if db_pw['password'] == pw:
     return True
 
   # Check for hashed password
-  if check_password_hash(pw['password'], pw):
+  if check_password_hash(db_pw['password'], pw):
     return True
 
   return False
