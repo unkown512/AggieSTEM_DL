@@ -35,7 +35,7 @@ class Group(Document):
 
 class Security(Document):
   user_id = IntField(required=True)
-  password = StringField(required=True, max_length=40)
+  password = StringField(required=True, max_length=100)
   security_answers = ListField(required=True)
 
 class UserLibraryAccess(Document):

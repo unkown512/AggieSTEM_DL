@@ -1,95 +1,137 @@
-import mongoengine
-import pymongo
-import datetime
-import json
-import sys
+"""User manager manages user login and registration on databases."""
+from werkzeug.security import generate_password_hash, check_password_hash
 
-'''
-   Model team to fill in interations with DB, salts, and encryption for user information
-
-'''
 
 def unique_key():
-  return "SUPPOSETOBEASECRET"
+  return 'SUPPOSETOBEASECRET'
 
-def validate_user(db, user, pw):
+
+def validate_user(db, username, pw):
+  """Check if a user's credential is correct."""
   print('\n\nVALIDATING USER\n\n')
-  u_info = db['user'].find_one({'username':user})
+  user = db['user'].find_one({'username': username})
 
-  #Check if user exists
-  if u_info is None:
+  # Check if user exists
+  if user is None:
     return False
 
-  #Check user's password against what is stored in the database
-  u_pw = db['security'].find_one({'user_id':u_info['user_id']})   #TODO: Handle hashing security info
+  user_id = user['user_id']
 
-  #Doubke check that user exists
-  if u_pw is None:
+  # Check user's password against what is stored in the database
+  pw = db['security'].find_one({'user_id': user_id})
+
+  # Check if the password for the user exists
+  if pw is None:
     return False
 
-  if u_pw['password'] == pw:
+  # For backwards compatibility, treat password as unhashed first
+  if pw['password'] == pw:
+    return True
+
+  # Check for hashed password
+  if check_password_hash(pw['password'], pw):
     return True
 
   return False
 
-def add_user(db, user_data):
-  '''
-    user_data = [username, password, email, position, phone]
-  '''
-  us = db['user'].find()
-  next_id = 0
-  for i in us:
-    if i['user_id'] > next_id:
-      next_id = i['user_id']
-  next_id += 1
 
-  # Access Levels. 1 will be for a user that has some content to view
-  access_level = 0
-  if(user_data[3] == "D"):
-    access_level = 3
-  elif(user_data[3] == "S"):
-    access_level = 2
-  else:
-    access_level = 0
+def check_security_answers(db, username, answers, minimum_correct=0):
+  """Check if a user's security answers are correct.
+
+  Args:
+    db (pymongo.MongoClient): mongodb client instance.
+    username (str): username of the user.
+    answers (List[str]): user provided answer.
+    minimum_correct (int): minimum number of questions to answer
+      correctly in order to pass the test.
+
+  """
+  user = get_user_profile(db, username)
+  if user is None:
+    return False
+
+  security = db['security'].find_one({'user_id': user['user_id']})
+  if security is None:
+    return False
+  correct_answers = security['security_answers']
+
+  # Count the number of correct answers
+  correct_count = 0
+  for answer, correct in zip(answers, correct_answers):
+    if answer == correct:
+      correct_count += 1
+    elif check_password_hash(correct, answer):
+      correct_count += 1
+
+  # Check if satisfy minimum correct count
+  if minimum_correct > 0:
+    return correct_count >= minimum_correct
+  else:  # Otherwise, pass if all correct
+    return correct_count == len(correct_answers)
+
+
+def add_user(db, user_data):
+  """Add a user to the database.
+
+  user_data: [username, password, email, position, phone]
+  """
+  username, password, email, position, phone = user_data[:5]
+
+  # Set the new user id
+  users = db['user'].find()
+  next_id = max(u['user_id'] for u in users) + 1
+
+  # Set Access Level. 1 will be for a user that has some content to view.
+  # Default level is 0
+  access_level_map = {'D': 3, 'S': 2}
+  access_level = access_level_map.get(position, 0)
+
+  security_questions = []
+  security_answers = []
+
+  security_answers_hash = [generate_password_hash(ans)
+                           for ans in security_answers]
 
   # Create the data JSON
   db['user'].insert_one({
-      'user_id': next_id,
-      'username': user_data[0],
-      'access_level': access_level,
-      'email': user_data[2],
-      'phone': user_data[4],
-      'position': user_data[3],
-      'security_questions': []
+    'user_id': next_id,
+    'username': username,
+    'access_level': access_level,
+    'email': email,
+    'position': position,
+    'phone': phone,
+    'security_questions': security_questions
   })
 
   db['security'].insert_one({
-      'user_id': next_id,
-      'password': user_data[1],
-      'security_answers': []
+    'user_id': next_id,
+    'password': password,
+    'security_answers': security_answers_hash
   })
 
   # Insert user into DB
   return True
 
+
 def get_user_profile(db, user):
-  # Return one user prof
-  return db['user'].find_one({'username':user})
+  """Return one user profile."""
+  return db['user'].find_one({'username': user})
+
 
 def get_all_users(db):
-  data = []
-  for i in db['user'].find():
-    data.append(i)
+  """Return all users in database."""
+  return list(db['user'].find())
 
-  return data
 
 def update_user(db, user_data):
-  #TODO
+  # TODO
   return True
+
 
 def delete_user(db, user):
   # TODO
   return True
+
 
 def get_last_login(db, user):
   # TODO: RETURN LAST LOGIN TIME
