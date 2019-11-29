@@ -164,10 +164,9 @@ def signup():
 
         NOTE: TEMP_LOGIN_DB WILL BE REMOVED ONCE 'user_manager' is complete!!!
       '''
-      user_data = [form.username.data, form.password.data, form.email.data,
-        form.position.data, form.phone.data]
       db = db_client()
-      user_manager.add_user(db, user_data)
+      user_manager.add_user(db, form.username.data, form.password.data, form.email.data,
+        form.position.data, form.phone.data)
       return redirect(url_for('signin'))
     else:
       print("INVALID FORM")
