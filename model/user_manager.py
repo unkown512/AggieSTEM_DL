@@ -70,12 +70,13 @@ def check_security_answers(db, username, answers, minimum_correct=0):
         return correct_count == len(correct_answers)
 
 
-def add_user(db, username, password, email, position, phone,
-             security_questions=[], security_answers=[]):
+def add_user(db, user_data):
     """Add a user to the database.
 
     user_data: [username, password, email, position, phone]
     """
+    username, password, email, position, phone = user_data
+
     # Set the new user id
     users = db['user'].find()
     next_id = max(u['user_id'] for u in users) + 1
@@ -85,23 +86,28 @@ def add_user(db, username, password, email, position, phone,
     access_level_map = {'D': 3, 'S': 2}
     access_level = access_level_map.get(position, 0)
 
+    security_questions = []
+    security_answers = []
+
     security_answers_hash = [generate_password_hash(ans)
                              for ans in security_answers]
 
     # Create the data JSON
-    db['user'].insert_one(dict(
-        user_id=next_id,
-        username=username,
-        access_level=access_level,
-        email=email,
-        position=position,
-        phone=phone,
-        security_questions=security_questions))
+    db['user'].insert_one({
+        'user_id': next_id,
+        'username': username,
+        'access_level': access_level,
+        'email': email,
+        'position': position,
+        'phone': phone,
+        'security_questions': security_questions
+    })
 
-    db['security'].insert_one(dict(
-        user_id=next_id,
-        password=generate_password_hash(password),
-        security_answers=security_answers_hash))
+    db['security'].insert_one({
+        'user_id': next_id,
+        'password': password,
+        'security_answers': security_answers_hash
+    })
 
     # Insert user into DB
     return True
