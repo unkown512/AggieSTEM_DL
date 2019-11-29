@@ -35,7 +35,43 @@ def validate_user(db, username, pw):
     return False
 
 
-def add_user(db, username, password, email, position, phone):
+def check_security_answers(db, username, answers, minimum_correct=0):
+    """Check if a user's security answers are correct.
+
+    Args:
+        db (pymongo.MongoClient): mongodb client instance.
+        username (str): username of the user.
+        answers (List[str]): user provided answer.
+        minimum_correct (int): minimum number of questions to answer
+            correctly in order to pass the test.
+
+    """
+    user = get_user_profile(db, username)
+    if user is None:
+        return False
+
+    security = db['security'].find_one({'user_id': user['user_id']})
+    if security is None:
+        return False
+    correct_answers = security['security_answers']
+
+    # Count the number of correct answers
+    correct_count = 0
+    for answer, correct in zip(answers, correct_answers):
+        if answer == correct:
+            correct_count += 1
+        elif check_password_hash(correct, answer):
+            correct_count += 1
+
+    # Check if satisfy minimum correct count
+    if minimum_correct > 0:
+        return correct_count >= minimum_correct
+    else:  # Otherwise, pass if all correct
+        return correct_count == len(correct_answers)
+
+
+def add_user(db, username, password, email, position, phone,
+             security_questions=[], security_answers=[]):
     """Add a user to the database.
 
     user_data: [username, password, email, position, phone]
@@ -49,6 +85,9 @@ def add_user(db, username, password, email, position, phone):
     access_level_map = {'D': 3, 'S': 2}
     access_level = access_level_map.get(position, 0)
 
+    security_answers_hash = [generate_password_hash(ans)
+                             for ans in security_answers]
+
     # Create the data JSON
     db['user'].insert_one(dict(
         user_id=next_id,
@@ -57,12 +96,12 @@ def add_user(db, username, password, email, position, phone):
         email=email,
         position=position,
         phone=phone,
-        security_questions=[]))
+        security_questions=security_questions))
 
     db['security'].insert_one(dict(
         user_id=next_id,
         password=generate_password_hash(password),
-        security_answers=[]))
+        security_answers=security_answers_hash))
 
     # Insert user into DB
     return True
