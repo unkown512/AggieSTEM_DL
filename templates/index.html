@@ -8,7 +8,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Aggie STEM</title>
+    <title>Aggie STEM Digital Library</title>
 
     <!-- Bootstrap core CSS -->
     <!-- <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet"> -->
@@ -63,7 +63,7 @@
               <a class="nav-link js-scroll-trigger" href="{{ url_for('message_users') }}">Message Users</a>
             </li>
             <li class="nav-item" id="login" name="login">
-              <a class="nav-link js-scroll-trigger" href="{{ url_for('userProfile') }}">Account {{user}}</a>
+              <a class="nav-link js-scroll-trigger" href="{{ url_for('userProfile') }}">{{user}}</a>
             </li>
             <li class="nav-item" id="logout" name="logout">
               <a class="nav-link js-scroll-trigger" href="{{ url_for('logout') }}">Logout</a>
