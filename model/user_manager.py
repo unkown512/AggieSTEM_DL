@@ -94,6 +94,8 @@ def add_user(db, user_data):
   security_answers_hash = [generate_password_hash(ans)
                            for ans in security_answers]
 
+  password_hash = generate_password_hash(password)
+
   # Create the data JSON
   db['user'].insert_one({
     'user_id': next_id,
@@ -107,7 +109,7 @@ def add_user(db, user_data):
 
   db['security'].insert_one({
     'user_id': next_id,
-    'password': password,
+    'password': password_hash,
     'security_answers': security_answers_hash
   })
 
