@@ -150,7 +150,7 @@ def Setup(db, client):
   # Create indicies
   user_table.create_index([('user_id', pymongo.TEXT)], name='user_search', default_language='english')
 
-  user_table.create_index([('group_id', pymongo.TEXT)], name='group_search', default_language='english')
+  # user_table.create_index([('group_id', pymongo.TEXT)], name='group_search', default_language='english')
 
   security_table.create_index([('user_id', pymongo.TEXT)], name='security_search', default_language='english')
 
