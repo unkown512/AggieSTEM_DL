@@ -75,7 +75,7 @@ def add_user(db, user_data):
 
   user_data: [username, password, email, position, phone]
   """
-  username, password, email, position, phone = user_data
+  username, password, email, position, phone = user_data[:5]
 
   # Set the new user id
   users = db['user'].find()
