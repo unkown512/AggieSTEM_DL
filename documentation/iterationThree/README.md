@@ -4,7 +4,7 @@ travis and Carson:
 - Added user stories for the user_manager model
 - Added some user stories for the library_manager model
 
-DJ and Maomihz:
+DJ, Maomihz, and Will:
 - This week was focused on finishing up some views, security, and controller updates which is described in the iteration 3 software updates document.
 
 ## Meeting With Customer
