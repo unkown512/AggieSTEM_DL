@@ -242,6 +242,19 @@ def recov_pw():
   else:
     return render_template('signin.html', form=form, error="TEST")
 
+# Recover Password Page
+@app.route('/request_data_form', methods=['GET', 'POST'])
+@login_required
+def request_data_form():
+  form = ForgotPw()
+  if(request.method == 'GET'):
+    return render_template('request_data_form.html', form=form, user=current_user.username)
+  elif(request.method == 'POST'):
+    print("POST FROM REQUEST DATA FORM")
+    return render_template('request_data_form.html', form=form, user=current_user.username)
+  else:
+    return render_template('signin.html', form=form, error="TEST")
+
 @app.route('/manage_users', methods=['GET', 'POST'])
 @login_required
 def manage_users():
@@ -345,6 +358,8 @@ def message_users():
       user_data['groups'] = groups[i] #Make sure it works with multigroups/user
       temp.append(user_data)
       i += 1
+      if(i>3):
+        i=0
     data = {}
     data['data'] = temp
 

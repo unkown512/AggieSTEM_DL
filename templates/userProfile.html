@@ -83,7 +83,7 @@
                     <h5>{{ position }}</h5>
                   </div>
                   <div class="col-md-4 col-sm-6 col-12 profile-header-section1 text-right pull-rigth">
-                    <a id="btn-request" href="#" class="btn btn-primary btn-block " (click)="clearModal()" data-toggle="modal" data-target="#request-data-access">Request Data Access</a>
+                    <a id="btn-request" href="{{url_for('request_data_form')}}" class="btn btn-primary btn-block ">Request Data Access</a>
                   </div>
                 </div>
               </div>
@@ -265,36 +265,6 @@
         </div>
       </div>
     </div>
-
-
-    <!-- Request data access  POPUP -->
-    <div class="modal fade" id="request-data-access" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Request Data Access Form</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">×</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <div class="modal-body">
-              <div class="form-group">
-                <p for="msj">Download the below form and send to your senior doc {XX}.
-                </p>
-              </div>
-              <div class="form-group">
-                <object class="me_pdf" id="pdfdata" data="/loadpdf" type="text/html"></object>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-primary" (click)="openModal()" data-dismiss="modal">Download</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
 
   </body>      
   <footer class="py-5 bg-dark">
