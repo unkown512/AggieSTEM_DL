@@ -5,10 +5,6 @@ import datetime
 import json
 import sys
 
-# TODO: -Add redirect to a page to be able to request access to a
-#        group from its administrator via the message app.
-#       -Test functionality.
-
 # Checks if the access level being set is appropriate for the DB
 # 0 : all access, 1 : tier 1 access, 2 : tier 2 access, ..., 5 : admin access.
 def valid_access_level(access_level):
@@ -212,6 +208,19 @@ def join_group(db, user_id, group_id):
     print("Invalid permissions to join group! Unsuccessful!")
     return False
 
-def get_all_groups(db, username):
+# Grabs all groups that this user is a part of.
+def get_all_groups(db, user_id):
+  # Grab this user to check availability
+  user = db.user_table.find_one({"user_id": user_id})
+  if len(user) == 0:
+      print("Error! Invalid user_id given! Cannot retrieve groups!")
+      return False
+  
+  # Grab the groups and check for correctness.
+  groups = db.user_library_access_table.find_one({"user_id": user_id})
+  if len(groups) == 0:
+      print("Error! Could not retrieve user_library_access!")
+      return False
+  
   #Return all the groups the user is apart of
-  return []
+  return groups["library_ids"]
