@@ -24,8 +24,13 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user, UserMixin
 from wtforms import ValidationError
 
-# Model Imports for storing and retrieving user information
+# Model Imports for storing and retrieving user, group, and library information
 from model import user_manager
+from model import group_manager
+from model import library_manager
+
+# email impots
+import smtplib, ssl
 
 # MongoDB imports
 import pymongo
@@ -41,6 +46,7 @@ app.config['SECRET_KEY'] = user_manager.unique_key()
   user_list needs to be changed to be inside a class/db
   TEMP_LOGIN_DB is temporary for testing the login system.
 '''
+
 # Initlaize login_manager
 def init_login_manager(app):
   login_manager = LoginManager()
@@ -177,6 +183,25 @@ def signup():
       return redirect(url_for('signin'))
   else:
     return redirect(url_for('signin'))
+
+# Send Emails
+@app.route('/send_email', methods=['GET'])
+@login_required
+def send_email():
+  if(request.method == 'GET'):
+    port = 465
+    password = "ASECRET"
+
+    context = ssl.create_default_context()
+    sender = "aggiestem.dl@gmail.com"
+    reciever = "theinformantherod@gmail.com"
+    smtp_server = "smtp.gmail.com"
+
+
+    with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
+      server.login(sender, password)
+      server.sendmail(sender, reciever, "HELLO IT WORKED")
+    return("EMAIL SENT")
 
 # User Profile
 @app.route('/userProfile', methods=['GET', 'POST'])
