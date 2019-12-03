@@ -395,13 +395,18 @@ def message_users():
   else:
     return render_template('index.html', user=current_user.username, error="TEST", access_level=current_user.access)
 
-def db_client():
+def db_connection():
   try:
     client = pymongo.MongoClient("mongodb://128.194.140.214:27017/")
   except pymongo.errors.ServerSelectionTimeoutError as err:
     print(err)
+  return client
+
+def db_client():
+  client = db_connection()
   db = client["AggieSTEM"]
   return db
+
 
 if __name__ == "__main__":
   IP = '128.194.140.214'
