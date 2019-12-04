@@ -16,12 +16,7 @@ def valid_access_level(access_level):
     return False
 
 # Create a new group
-def create_group(db, user_id, group_id, user_list, access_level):
-  # First, check and make sure this group doesn't already exist.
-  if is_group(db, group_id):
-    print("Error! Already a group!")
-    return False
-
+def create_group(db, user_id, user_list, access_level):
   # Check if the access_level is valid.
   if not valid_access_level(access_level):
     print("Invalid access level requested!")
@@ -33,16 +28,15 @@ def create_group(db, user_id, group_id, user_list, access_level):
     return False
 
   # Next, build the group JSON dictionary.
-  db['group_table'].insert_one({
+  _id = db['group'].insert_one({
     'owner_id'     : user_id,
-    'group_id'     : group_id,
     'user_list'    : user_list,
     'access_level' : access_level,
     'user_ids'     : [user_id]
   })
 
   # Check if this insert was successful
-  if is_group(db, group_id):
+  if is_group(db, _id):
     print("Successful insertion of group!")
     return True
   else:
@@ -52,8 +46,8 @@ def create_group(db, user_id, group_id, user_list, access_level):
 # Attempts to delete group: group_id as user: user_id.
 def delete_group(db, user_id, group_id):
   # Fetch the requested user and group for the interaction.
-  user  = db.user_table.find({"user_id" : user_id})
-  group = db.group_table.find({"group_id" : group_id})
+  user  = db['user'].find({"_id" : user_id})
+  group = db['group'].find({"_id" : group_id})
 
   # Check if the user_id was valid and returned a record.
   if len(user) == 0:
@@ -72,7 +66,7 @@ def delete_group(db, user_id, group_id):
 
   # At this point, all data retrieved from the db has been verified, and the
   # delete transaction can take place.
-  db.group_table.delete_one({"group_id" : group_id})
+  db['group'].delete_one({"_id" : group_id})
 
   # Check if the group was successfully deleted.
   if not is_group(db, group_id):
@@ -91,8 +85,8 @@ def get_users(db, group_id):
     return False
 
   # Query the groups array for values equivalent to group_id.
-  group    = db.group_table.find({"group_id" : group_id})
-  users    = db.user_table.find({"user_id" : group['user_ids']})
+  group    = db['group'].find({"_id" : group_id})
+  users    = db['user'].find({"_id"  : group['user_ids']})
 
   # Check if the group has users to return.
   # Base user should be the admin - this is a critical error if hit.
@@ -118,7 +112,7 @@ def get_users(db, group_id):
 # https://stackoverflow.com/questions/25163658/mongodb-return-true-if-document-exists
 def is_group(db, group_id):
   # Query to see if a single library with this id exists.
-  if db.library_table.count_documents({"library_id" : group_id}, limit = 1) != 0:
+  if db['group'].count_documents({"_id" : group_id}, limit = 1) != 0:
     print("Valid group!")
     return True
   # If the query returned 0, the group/library doesn't exist.
@@ -126,7 +120,7 @@ def is_group(db, group_id):
     print("Invalid group!")
     return False
 
-# Add a user to a group.
+# Add an existing user to a group.
 def add_user(db, admin_id, group_id, user_id):
   # First, check if the group exists.
   if not is_group(db, group_id):
@@ -134,14 +128,14 @@ def add_user(db, admin_id, group_id, user_id):
     return False
 
   # Check if the user being entered exists
-  user = db.user_table.find_one({"user_id" : user_id})
+  user = db['user'].find_one({"_id" : user_id})
   if len(user) == 0:
     print("Invalid user_id! Cannot add to group!")
     return False
 
   # Fetch the admin and group records, and validate.
-  admin = db.user_table.find_one({"user_id"  : admin_id})
-  group = db.group_table.find_one({"group_id": group_id})
+  admin = db['user'].find_one({"_id"  : admin_id})
+  group = db['group'].find_one({"_id": group_id})
 
   # Check if the admin has correct credentials.
   if len(admin) == 0 or admin['access_level'] < group['access_level']:
@@ -151,7 +145,7 @@ def add_user(db, admin_id, group_id, user_id):
   else:
     print("Valid credentials! Adding...")
     group['user_ids'].append(user_id)
-    db.group_table.update(group)
+    db['group'].update(group)
     return True
 
 # Remove a user from a group
@@ -162,20 +156,20 @@ def remove_user(db, admin_id, group_id, user_id):
     return False
 
   # Check if the user being entered exists
-  user = db.user_table.find_one({"user_id" : user_id})
+  user = db['user'].find_one({"_id" : user_id})
   if len(user) == 0:
     print("Invalid user_id! Cannot add to group!")
     return False
 
   # Fetch the admin and group records, and validate.
-  admin = db.user_table.find_one({"user_id"  : admin_id})
-  group = db.group_table.find_one({"group_id": group_id})
+  admin = db['user'].find_one({"_id"  : admin_id})
+  group = db['group'].find_one({"_id": group_id})
 
   # Check if the admin has correct credentials.
   if len(admin) != 0 or admin['access_level'] >= group['access_level']:
     print("Valid credentials! Adding...")
     group['user_ids'].remove(user_id)
-    db.group_table.update(group)
+    db['group'].update(group)
     return True
   # Otherwise, do not delete.
   else:
@@ -190,19 +184,19 @@ def join_group(db, user_id, group_id):
     return False
 
   # Check if the user being entered exists
-  user = db.user_table.find_one({"user_id" : user_id})
+  user = db['user'].find_one({"_id" : user_id})
   if len(user) == 0:
     print("Invalid user_id! Cannot add to group!")
     return False
 
   # Fetch the group.
-  group = db.group_table.find_one({"group_id": group_id})
+  group = db['group'].find_one({"_id": group_id})
 
   # Check if the user has the appropriate access level
   if user['access_level'] >= group['access_level']:
     print("Valid credentials! Adding...")
     group['user_ids'].append(user_id)
-    db.group_table.update(group)
+    db['group'].update(group)
   # Otherwise, do not add.
   else:
     print("Invalid permissions to join group! Unsuccessful!")
@@ -211,16 +205,16 @@ def join_group(db, user_id, group_id):
 # Grabs all groups that this user is a part of.
 def get_all_groups(db, user_id):
   # Grab this user to check availability
-  user = db.user_table.find_one({"user_id": user_id})
+  user = db['user'].find_one({"_id": user_id})
   if len(user) == 0:
       print("Error! Invalid user_id given! Cannot retrieve groups!")
       return False
   
   # Grab the groups and check for correctness.
-  groups = db.user_library_access_table.find_one({"user_id": user_id})
-  if len(groups) == 0:
+  user_access = db['user_library_access'].find_one({"_id": user_id})
+  if len(user_access) == 0:
       print("Error! Could not retrieve user_library_access!")
       return False
   
   #Return all the groups the user is apart of
-  return groups["library_ids"]
+  return user_access["library_ids"]
