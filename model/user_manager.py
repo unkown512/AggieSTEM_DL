@@ -3,6 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from uuid import uuid4
 
 import datetime
+import random
 
 def unique_key():
   return str(uuid4())
@@ -106,12 +107,6 @@ def add_user(db, user_data):
 
   password_hash = generate_password_hash(password)
 
-  # Create a unique username 
-  test_username = username + '#' + str(random.randrange(10000)).zfill(4)
-  while(len(db['user'].find({'username': test_username})) != 0):
-    test_username = username + '#' + str(random.randrange(10000)).zfill(4)
-    
-  username = test_username
 
   # Create the data JSON
   db['user'].insert_one({
@@ -123,7 +118,7 @@ def add_user(db, user_data):
     'phone': phone,
     'security_questions': security_questions,
     'login_timestamp':str(datetime.datetime.utcnow()),
-    'deleted': False
+    'deleted': int(False)
   })
 
   db['security'].insert_one({

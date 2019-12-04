@@ -116,7 +116,7 @@ def Setup(db, client):
     phone='8322740571',
     position='Admin',
     security_questions=['RTDS', 'Blank Map'],
-    login_timestamp=str(datetime.datetime.utcnow())
+    login_timestamp=str(datetime.datetime.utcnow()),
     deleted=False)
 
   security = Security(user_id=0,

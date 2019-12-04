@@ -5,6 +5,8 @@
 '''
 import os
 import json
+import random
+
 # Flask Server Imports
 from flask import Flask
 from flask import request
@@ -173,10 +175,14 @@ def signup():
 
         NOTE: TEMP_LOGIN_DB WILL BE REMOVED ONCE 'user_manager' is complete!!!
       '''
-      user_data = [form.username.data, form.password.data, form.email.data,
+
+      unique_number = '#' + str(random.randrange(10000)).zfill(4)
+      user_data = [form.username.data + unique_number, form.password.data, form.email.data,
         form.position.data, form.phone.data]
       db = db_client()
       user_manager.add_user(db, user_data)
+
+      print("User: " + user_data[0] + " successfully created...")
       return redirect(url_for('signin'))
     else:
       print("INVALID FORM")
@@ -310,7 +316,7 @@ def manage_users():
       user_data['email'] = row['email']
       user_data['phone'] = row['phone']
       user_data['groups'] = ""
-      user_data['last_login'] = ""
+      user_data['last_login'] = row['login_timestamp']
       temp.append(user_data)
     data = {}
     data['data'] = temp
@@ -397,12 +403,14 @@ def message_users():
 
 def db_client():
   try:
-    client = pymongo.MongoClient("mongodb://128.194.140.214:27017/")
+    #client = pymongo.MongoClient("mongodb://128.194.140.214:27017/")
+    client = pymongo.MongoClient("mongodb://localhost:27017/")
   except pymongo.errors.ServerSelectionTimeoutError as err:
     print(err)
   db = client["AggieSTEM"]
   return db
 
 if __name__ == "__main__":
-  IP = '128.194.140.214'
+  #IP = '128.194.140.214'
+  IP = "127.0.0.1"
   app.run(host = os.getenv('IP',IP), port=int(os.getenv('PORT',8080)), debug=True)
