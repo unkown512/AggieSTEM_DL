@@ -26,6 +26,8 @@ class User(Document):
   phone = StringField(required=True, max_length=20)
   position = StringField(required=True, max_length=100) # Job title
   security_questions = ListField(required=True)
+  login_timestamp = StringField(required=False, max_length=100)
+  deleted = IntField(required=False)
 
 class Group(Document):
   group_id = IntField(required=True)
@@ -113,7 +115,9 @@ def Setup(db, client):
     email='djbey@protonmail.com',
     phone='8322740571',
     position='Admin',
-    security_questions=['RTDS', 'Blank Map'])
+    security_questions=['RTDS', 'Blank Map'],
+    login_timestamp=str(datetime.datetime.utcnow()),
+    deleted=False)
 
   security = Security(user_id=0,
     password='Sedrftgy2@',

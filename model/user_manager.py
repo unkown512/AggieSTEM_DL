@@ -2,6 +2,9 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 from uuid import uuid4
 
+import datetime
+import random
+
 def unique_key():
   return str(uuid4())
 
@@ -15,6 +18,9 @@ def validate_user(db, username, pw):
   """Check if a user's credential is correct."""
   print('\n\nVALIDATING USER\n\n')
   user = db['user'].find_one({'username': username})
+
+  update_timestamp = {}
+  update_timestamp['login_timestamp'] = str(datetime.datetime.utcnow())
 
   # Check if user exists
   if user is None:
@@ -31,10 +37,12 @@ def validate_user(db, username, pw):
 
   # For backwards compatibility, treat password as unhashed first
   if db_pw['password'] == pw:
+    db['user'].update_one({'user_id': user_id}, {'$set': update_timestamp})
     return True
 
   # Check for hashed password
   if check_password_hash(db_pw['password'], pw):
+    db['user'].update_one({'user_id': user_id}, {'$set': update_timestamp})
     return True
 
   return False
@@ -99,6 +107,7 @@ def add_user(db, user_data):
 
   password_hash = generate_password_hash(password)
 
+
   # Create the data JSON
   db['user'].insert_one({
     'user_id': next_id,
@@ -107,7 +116,9 @@ def add_user(db, user_data):
     'email': email,
     'position': position,
     'phone': phone,
-    'security_questions': security_questions
+    'security_questions': security_questions,
+    'login_timestamp':str(datetime.datetime.utcnow()),
+    'deleted': int(False)
   })
 
   db['security'].insert_one({
@@ -155,16 +166,24 @@ def get_all_users(db):
 
 
 def update_user(db, user_data):
-  # TODO
+  db['user'].update_one({'user_id': user['user_id']}, {'$set': user_data})
   return True
 
 
 def delete_user(db, user):
-  # TODO
+  users = db['user'].find({'username': user})
+  update = {}
+  update['deleted'] = True
+
+  # Return False if more than one user was found
+  if(len(users) > 1):
+    return False
+
+  db['user'].update_one({'user_id': user['user_id']}, {'$set': update})
   return True
 
 
 def get_last_login(db, user):
-  # TODO: RETURN LAST LOGIN TIME
-  return 0
+  u = db['user'].find_one({'username': user})
+  return u['login_timestamp']
 
