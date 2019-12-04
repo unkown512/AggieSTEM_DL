@@ -2,6 +2,8 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 from uuid import uuid4
 
+import datetime
+
 def unique_key():
   return str(uuid4())
 
@@ -15,6 +17,9 @@ def validate_user(db, username, pw):
   """Check if a user's credential is correct."""
   print('\n\nVALIDATING USER\n\n')
   user = db['user'].find_one({'username': username})
+
+  update_timestamp = {}
+  update_timestamp['login_timestamp'] = str(datetime.datetime.utcnow())
 
   # Check if user exists
   if user is None:
@@ -31,10 +36,12 @@ def validate_user(db, username, pw):
 
   # For backwards compatibility, treat password as unhashed first
   if db_pw['password'] == pw:
+    db['user'].update_one({'user_id': user_id}, {'$set': update_timestamp})
     return True
 
   # Check for hashed password
   if check_password_hash(db_pw['password'], pw):
+    db['user'].update_one({'user_id': user_id}, {'$set': update_timestamp})
     return True
 
   return False
@@ -115,6 +122,7 @@ def add_user(db, user_data):
     'position': position,
     'phone': phone,
     'security_questions': security_questions,
+    'login_timestamp':str(datetime.datetime.utcnow()),
     'deleted': False
   })
 
