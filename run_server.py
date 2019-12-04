@@ -403,14 +403,12 @@ def message_users():
 
 def db_client():
   try:
-    #client = pymongo.MongoClient("mongodb://128.194.140.214:27017/")
-    client = pymongo.MongoClient("mongodb://localhost:27017/")
+    client = pymongo.MongoClient("mongodb://128.194.140.214:27017/")
   except pymongo.errors.ServerSelectionTimeoutError as err:
     print(err)
   db = client["AggieSTEM"]
   return db
 
 if __name__ == "__main__":
-  #IP = '128.194.140.214'
-  IP = "127.0.0.1"
+  IP = '128.194.140.214'
   app.run(host = os.getenv('IP',IP), port=int(os.getenv('PORT',8080)), debug=True)
