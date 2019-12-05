@@ -57,10 +57,10 @@
             <li class="nav-item" id="manageuser" name="manageuser">
               <a class="nav-link js-scroll-trigger" href="{{ url_for('manage_users') }}">Manage Users</a>
             </li>
-            {% endif %}
             <li class="nav-item" id="managegroups" name="managegroups">
               <a class="nav-link js-scroll-trigger" href="{{ url_for('manage_groups') }}">Manage Groups</a>
             </li>
+            {% endif %}
             {% if access_level == 3 %}
             <li class="nav-item" id="messageusers" name="messageusers">
               <a class="nav-link js-scroll-trigger" href="{{ url_for('message_users') }}">Message Users</a>

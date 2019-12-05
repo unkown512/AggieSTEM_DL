@@ -372,7 +372,7 @@ def manage_users():
       response_data['data'].append(post_args['data'][user_id])
 
       new_user_data = {}
-      new_user_data['access_level'] = response_data['data'][0]['access_level']
+      new_user_data['access_level'] = int(response_data['data'][0]['access_level'])
       new_user_data['position'] = response_data['data'][0]['position']
 
       user_manager.update_user(db, user_id, new_user_data)
@@ -384,6 +384,9 @@ def manage_users():
 @app.route('/manage_groups', methods=['GET', 'POST'])
 @login_required
 def manage_groups():
+  db = db_client()
+  if(user_manager.get_access_level(db, current_user.username) < 2):
+    return redirect(url_for('dashboard', user=current_user.username, access_level=current_user.access))
   if(request.method == 'GET'):
     '''
     TODO: Get all users and display on page
