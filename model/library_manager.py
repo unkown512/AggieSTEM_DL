@@ -16,7 +16,7 @@ def create_library(db, owner_id, library_name, min_perm, content_ids):
       return False
   
   # Next, build the library JSON dictionary.
-  db['library'].insert_one({
+  new_library_id = db['library'].insert_one({
     'name'          : library_name,
     'owner_id'      : owner_id,
     'min_permission': min_perm,
@@ -24,6 +24,15 @@ def create_library(db, owner_id, library_name, min_perm, content_ids):
     'deleted'       : False
   })
 
+  # Update user's access table to include the new library
+  user_access = db['access'].find_one({'user_id': owner_id})
+  user_access['library_ids'] = list(user_access['library_ids'].append(str(new_library_id.inserted_id)))
+
+  # It is assumed that the owner should have admin rights over their library
+  user_access['library_access'] = list(user_access['library_access'].append(3))
+  #user_access['library_access'] = set(user_access['library_access'].append(owner["access_level"]))
+
+  # TODO: Add test for if it was created successfully and the owner has access
   # Successful operation.
   return True
 
@@ -42,18 +51,19 @@ def add_content(db, user_id, library_id, content_name, data):
       return False
   
   # Next, build the group JSON dictionary.
-  _id = db['content'].insert_one({
-    'data'         : data,
+  new_content_id = db['content'].insert_one({
     'name'         : content_name,
+    'data'         : data,
     'deleted'      : False
   })
     
   # Add the inserted record's ID to the library
-  library["content_ids"].append(_id)
+  library["content_ids"].append(str(new_content_id.inserted_id))
     
   # Update the library w/ the new content id
   db['library'].update_one({'_id': library_id}, {'$set': library})
   
+  # TODO: Add test for if it was successful
   # Successful
   return True
 
@@ -64,7 +74,7 @@ def delete_content(db, content_id):
   '''
   # Retrieve the content record from the DB.
   content = db["content"].find_one({"_id": content_id})
-  if len(content) == 0 or content['deleted'] == True:
+  if content is None or content['deleted'] == True:
       print("Error! Deletion of nonextant content...")
       return False
   
@@ -83,7 +93,7 @@ def delete_library(db, library_id):
   '''
   # Retrieve the library record from the DB.
   library = db["library"].find_one({"_id": library_id})
-  if len(library) == 0:
+  if library is None:
       print("Error! Deletion of a nonextant library...")
       return False
   
@@ -104,7 +114,7 @@ def get_content(db, content_ids):
   content = db["content"].find({"_id": content_ids, "deleted": False})
   
   # Check if anything was retuned.
-  if len(content) == 0:
+  if content is None:
       print("Error! Could not retrieve requested content!")
       return False
   
@@ -122,7 +132,7 @@ def get_libraries(db, library_ids):
   libraries = db["library"].find({"_id": library_ids, "deleted": False})
   
   # Check if anything was retuned.
-  if len(libraries) == 0:
+  if libraries is None:
       print("Error! Could not retrieve requested libraries!")
       return False
   

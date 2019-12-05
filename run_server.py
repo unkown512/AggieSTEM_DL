@@ -117,7 +117,7 @@ class ForgotPw(FlaskForm):
 # Get function for user during session
 @login_manager.user_loader
 def load_user(user_id):
-  return User.get_user(int(user_id))
+  return User.get_user(str(user_id))
 
 '''
   Starting of server routes and controller section of the application
@@ -149,8 +149,12 @@ def signin():
       db = db_client()
 
       if(user_manager.validate_user(db, user, pw)):
-        user_list.append(User(user, form.password.data, 1, user_manager.get_access_level(db, user)))
-        new_user = User(User, form.password.data, 1, user_manager.get_access_level(db, user))
+        user_profile = user_manager.get_username_profile(db, user)
+        user_list.append(User(user, form.password.data, str(user_profile['_id']), user_manager.get_access_level(db, user)))
+        new_user = User(User, form.password.data, str(user_profile['_id']), user_manager.get_access_level(db, user))
+        
+        #user_list.append(User(user, form.password.data, 1, user_manager.get_access_level(db, user)))
+        #new_user = User(User, form.password.data, 1, user_manager.get_access_level(db, user))
         login_user(new_user, remember=form.remember.data)
         return redirect(url_for('dashboard', user=current_user.username, access_level=current_user.access))
       else:
@@ -176,9 +180,8 @@ def signup():
         NOTE: TEMP_LOGIN_DB WILL BE REMOVED ONCE 'user_manager' is complete!!!
       '''
 
-      unique_number = '#' + str(random.randrange(10000)).zfill(4)
-      user_data = [form.username.data + unique_number, form.password.data, form.email.data,
-        form.position.data, form.phone.data]
+      unique_number = ''  #'#' + str(random.randrange(10000)).zfill(4)
+      user_data = [form.username.data + unique_number, form.password.data, form.email.data, form.position.data, form.phone.data]
       db = db_client()
       user_manager.add_user(db, user_data)
 
@@ -216,7 +219,7 @@ def userProfile():
   if(request.method == 'GET'):
     username = current_user.username
     db = db_client()
-    userdata = user_manager.get_user_profile(db, username)
+    userdata = user_manager.get_username_profile(db, username)
     phonenumber = userdata['phone']
     email = userdata['email']
     position = userdata['position']
@@ -305,17 +308,18 @@ def manage_users():
     if(user_manager.get_access_level(db, current_user.username) < 2):
       return redirect(url_for('dashboard', user=current_user.username, access_level=current_user.access))
 
-    user_list = user_manager.get_all_users(db)
+    group_user_list = user_manager.get_all_users(db)
+    # TODO: Fix get_all_groups()
     temp = []
-    for row in user_list:
+    for row in group_user_list:
       user_data = {}
-      user_data['uid'] = row['user_id']
+      user_data['uid'] = str(row['_id'])
       user_data['username'] = row['username']
       user_data['position'] = row['position']
       user_data['access_level'] = row['access_level']
       user_data['email'] = row['email']
       user_data['phone'] = row['phone']
-      user_data['groups'] = ""
+      user_data['groups'] = 'TODO: Fix get_all_groups()'#group_manager.get_all_groups(db, str(row['_id']))
       user_data['last_login'] = row['login_timestamp']
       temp.append(user_data)
     data = {}
@@ -376,14 +380,14 @@ def message_users():
     db = db_client()
     if(user_manager.get_access_level(db, current_user.username) != 3):
       return redirect(url_for('dashboard', user=current_user.username, access_level=current_user.access))
-    user_list = user_manager.get_all_users(db)
+    message_user_list = user_manager.get_all_users(db)
 
     groups = ["Camp A", "Camp B", "Camp C", "Camp D"]
     temp = []
     i = 0
-    for row in user_list:
+    for row in message_user_list:
       user_data = {}
-      user_data['uid'] = row['user_id']
+      user_data['uid'] = str(row['_id'])
       user_data['username'] = row['username']
       user_data['phone'] = row['phone']
       user_data['groups'] = groups[i] #Make sure it works with multigroups/user
@@ -403,12 +407,14 @@ def message_users():
 
 def db_client():
   try:
-    client = pymongo.MongoClient("mongodb://128.194.140.214:27017/")
+    #client = pymongo.MongoClient("mongodb://128.194.140.214:27017/")
+    client = pymongo.MongoClient("mongodb://localhost:27017/")
   except pymongo.errors.ServerSelectionTimeoutError as err:
     print(err)
   db = client["AggieSTEM"]
   return db
 
 if __name__ == "__main__":
-  IP = '128.194.140.214'
+  #IP = '128.194.140.214'
+  IP = '127.0.0.1'
   app.run(host = os.getenv('IP',IP), port=int(os.getenv('PORT',8080)), debug=True)
