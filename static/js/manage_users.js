@@ -8,33 +8,26 @@ $(document).ready(function() {
       type: "POST",
       data: function(args) {
         return { "data": JSON.stringify(args) };
+      },
+      success: function() {
+        refresh_table();
+      },
+      error: function(e) {
+        console.log(e);
       }
     },
     idSrc: 'uid',
     data: dataSet,
     table: "#users_table",
-    fields: [{
-      label: "User:",
-      name: "username"
-    }, {
-      label: "Position:",
-      name: "position"
-    }, {
-      label: "Access:",
-      name: "access_level"
-    }, {
-      label: "Email:",
-      name: "email"
-    }, {
-      label: "Phone Number:",
-      name: "phone"
-    }, {
-      label: "Groups:",
-      name: "groups"
-    }, {
-      label: "Last Login:",
-      name: "last_login"
-    }]
+    fields: [
+      {
+        label: "Position:",
+        name: "position"
+      }, {
+        label: "Access:",
+        name: "access_level"
+      }
+    ]
   });
   // Activate inline edit of a table cell
   $('#users_table').on('click', 'tbody td:not(:first-child)', function(e) {
@@ -58,21 +51,6 @@ $(document).ready(function() {
     order: [[1, 'asc']],
     columns: [
       {
-        title: "",
-        data: null,
-        defaultContent: '',
-        className: 'control',
-        orderable: false
-
-      },
-      {
-        title: "",
-        data: null,
-        defaultContent: '',
-        className: 'select-checkbox',
-        orderable: false
-      },
-      {
         title: "Username",
         data: "username",
         "render": function(data, type, row, meta) {
@@ -85,11 +63,13 @@ $(document).ready(function() {
       },
       {
         title: "Position",
-        data: "position"
+        data: "position",
+        className: 'editable'
       },
       {
         title: "Access Level",
-        data: "access_level"
+        data: "access_level",
+        className: 'editable'
       },
       {
         title: "Email",
@@ -111,10 +91,7 @@ $(document).ready(function() {
         data: "last_login"
       },
     ],
-    select: {
-      style: 'os',
-      selector: 'td:first-child'
-    },
+    select: true,
     buttons: [
       {extend: "remove", editor: editor},
       {extend: "edit", editor: editor},
@@ -127,7 +104,9 @@ $(document).ready(function() {
             var json_data = { "data" : {"uid": row['uid']}, "action": "unremove"};
             undelete_user(json_data);
           }
-        }
+        },
+        attr: { id: 'undelete' },
+        enabled: false
       }
     ]
   }); // END of datatables
@@ -138,10 +117,37 @@ $(document).ready(function() {
       data: { "data" : JSON.stringify(json_data)},
       success: function() {
         console.log("success")
+        //table.ajax.url("/test").reload();
+        refresh_table();
       }, function(error) {
         console.log(error);
       }
     });
 
+  }
+
+  function refresh_table() {
+    $.getJSON('/table_reload', null, function(json) {
+
+      table.clear();
+      table.rows.add(json['data']);
+      table.draw();
+
+    });
+  }
+
+  table.on('select deselect', function() {
+    var rowData = table.rows({selected: true}).data();
+    if(rowData.length > 0 && rowData[0]['deleted'] == "True"){
+      table.button(2).enable();
+    } else {
+      table.button(2).disable();
+    }
+  })
+  var undelete_button = table.buttons(['#undelete']);
+  if(table.rows({selected: true}).count() > 0) {
+    undelete_button.enable();
+  } else {
+    undelete_button.disable();
   }
 }); // END of document onready

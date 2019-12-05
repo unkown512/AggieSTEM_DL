@@ -286,6 +286,31 @@ def request_data_form():
   else:
     return render_template('signin.html', form=form, error="TEST")
 
+@app.route('/table_reload', methods=['GET', 'POST'])
+@login_required
+def table_reload():
+  print("TEST AJAX RELOAD")
+  db = db_client()
+  group_user_list = user_manager.get_all_users(db)
+  # TODO: Fix get_all_groups()
+  temp = []
+  for row in group_user_list:
+    user_data = {}
+    user_data['uid'] = str(row['_id'])
+    user_data['username'] = row['username']
+    user_data['position'] = row['position']
+    user_data['access_level'] = row['access_level']
+    user_data['email'] = row['email']
+    user_data['phone'] = row['phone']
+    user_data['groups'] = 'TODO'#group_manager.get_all_groups(db, str(row['_id']))
+    user_data['last_login'] = row['login_timestamp'][0:16]
+    user_data['deleted'] = str(row['deleted'])
+    temp.append(user_data)
+  data = {}
+  data['data'] = temp
+  return data
+
+
 @app.route('/manage_users', methods=['GET', 'POST'])
 @login_required
 def manage_users():
@@ -317,7 +342,7 @@ def manage_users():
       user_data['email'] = row['email']
       user_data['phone'] = row['phone']
       user_data['groups'] = 'TODO'#group_manager.get_all_groups(db, str(row['_id']))
-      user_data['last_login'] = row['login_timestamp']
+      user_data['last_login'] = row['login_timestamp'][0:16]
       user_data['deleted'] = str(row['deleted'])
       temp.append(user_data)
     data = {}
@@ -349,9 +374,6 @@ def manage_users():
       new_user_data = {}
       new_user_data['access_level'] = response_data['data'][0]['access_level']
       new_user_data['position'] = response_data['data'][0]['position']
-      new_user_data['email'] = response_data['data'][0]['email']
-      new_user_data['phone'] = response_data['data'][0]['phone']
-      new_user_data['groups'] = response_data['data'][0]['groups']
 
       user_manager.update_user(db, user_id, new_user_data)
       return response_data
