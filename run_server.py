@@ -152,7 +152,7 @@ def signin():
         user_profile = user_manager.get_username_profile(db, user)
         user_list.append(User(user, form.password.data, str(user_profile['_id']), user_manager.get_access_level(db, user)))
         new_user = User(User, form.password.data, str(user_profile['_id']), user_manager.get_access_level(db, user))
-        
+
         #user_list.append(User(user, form.password.data, 1, user_manager.get_access_level(db, user)))
         #new_user = User(User, form.password.data, 1, user_manager.get_access_level(db, user))
         login_user(new_user, remember=form.remember.data)
@@ -180,8 +180,8 @@ def signup():
         NOTE: TEMP_LOGIN_DB WILL BE REMOVED ONCE 'user_manager' is complete!!!
       '''
 
-      unique_number = ''  #'#' + str(random.randrange(10000)).zfill(4)
-      user_data = [form.username.data + unique_number, form.password.data, form.email.data, form.position.data, form.phone.data]
+      #unique_number = ''  #'#' + str(random.randrange(10000)).zfill(4)
+      user_data = [form.username.data, form.password.data, form.email.data, form.position.data, form.phone.data]
       db = db_client()
       user_manager.add_user(db, user_data)
 
@@ -319,13 +319,14 @@ def manage_users():
       user_data['access_level'] = row['access_level']
       user_data['email'] = row['email']
       user_data['phone'] = row['phone']
-      user_data['groups'] = 'TODO: Fix get_all_groups()'#group_manager.get_all_groups(db, str(row['_id']))
+      user_data['groups'] = 'TODO'#group_manager.get_all_groups(db, str(row['_id']))
       user_data['last_login'] = row['login_timestamp']
       temp.append(user_data)
     data = {}
     data['data'] = temp
     return render_template('manage_users.html', user=current_user.username, data = data, access_level=current_user.access)
   elif(request.method == 'POST'):
+    print("POST REQUEST MANAGE USERS")
     db = db_client()
     post_args = json.loads(request.values.get("data"))
     if(post_args['action'] == "remove"):
@@ -333,14 +334,21 @@ def manage_users():
       user_manager.delete_user(db, {})
       return {}
     else:
+      response_data = {}
+      response_data['data'] = []
+      user_id = next(iter(post_args['data']))
+      post_args['data'][user_id]['uid'] = user_id
+      response_data['data'].append(post_args['data'][user_id])
+
       new_user_data = {}
-      new_user_data['data'] = []
-      for row in post_args['data']:
-        post_args['data'][row]['uid'] = row
-        new_user_data['data'].append(post_args['data'][row])
-      #TODO: Update user record
-      user_manager.update_user(db, new_user_data)
-      return new_user_data
+      new_user_data['access_level'] = response_data['data'][0]['access_level']
+      new_user_data['position'] = response_data['data'][0]['position']
+      new_user_data['email'] = response_data['data'][0]['email']
+      new_user_data['phone'] = response_data['data'][0]['phone']
+      new_user_data['groups'] = response_data['data'][0]['groups']
+
+      user_manager.update_user(db, user_id, new_user_data)
+      return response_data
   else:
     return render_template('index.html', user=current_user.username, error="TEST", access_level=current_user.access)
 
@@ -407,14 +415,14 @@ def message_users():
 
 def db_client():
   try:
-    #client = pymongo.MongoClient("mongodb://128.194.140.214:27017/")
-    client = pymongo.MongoClient("mongodb://localhost:27017/")
+    client = pymongo.MongoClient("mongodb://128.194.140.214:27017/")
+    #client = pymongo.MongoClient("mongodb://localhost:27017/")
   except pymongo.errors.ServerSelectionTimeoutError as err:
     print(err)
   db = client["AggieSTEM"]
   return db
 
 if __name__ == "__main__":
-  #IP = '128.194.140.214'
-  IP = '127.0.0.1'
+  IP = '128.194.140.214'
+  #IP = '127.0.0.1'
   app.run(host = os.getenv('IP',IP), port=int(os.getenv('PORT',8080)), debug=True)

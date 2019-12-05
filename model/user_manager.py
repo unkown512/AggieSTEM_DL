@@ -4,6 +4,7 @@ from uuid import uuid4
 
 import datetime
 import random
+from bson import ObjectId
 
 def unique_key():
   return str(uuid4())
@@ -13,6 +14,9 @@ def get_access_level(db, username):
   user = db['user'].find_one({'username': username})
   return user['access_level']
 
+def get_user_id(db, username):
+  user_id = db['user'].find_one({'username': username})
+  return user_id['_id']
 
 def validate_user(db, username, pw):
   """Check if a user's credential is correct."""
@@ -174,8 +178,8 @@ def get_all_users(db):
   return list(db['user'].find())
 
 # TODO: Make sure this works correctly
-def update_user(db, user, user_data):
-  db['user'].update_one({'_id': str(user['_id'])}, {'$set': user_data})
+def update_user(db, user_id, user_data):
+  db['user'].update_one({'_id': ObjectId(user_id)}, {'$set': user_data})
   return True
 
 
