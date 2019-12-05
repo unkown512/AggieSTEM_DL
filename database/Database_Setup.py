@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Nov 01 22:22:25 2019
-
 @author: Carson
 """
 from mongoengine import *
@@ -12,51 +11,53 @@ import json
 from werkzeug.security import generate_password_hash
 
 # User account schema
+
 class User(Document):
-  user_id = IntField(required=True)
-  username = StringField(required=True, max_length=40) # username#number
   '''
     `access_level` for library/content.
       0 -> Guest
       1 -> Member
       2 -> Admin
   '''
-  access_level = IntField(required=True)
-  email = StringField(required=True, max_length=100)
-  phone = StringField(required=True, max_length=20)
-  position = StringField(required=True, max_length=100) # Job title
+  username           = StringField(required=True, max_length=40) # username#number
+  access_level       = IntField(required=True)
+  email              = StringField(required=True, max_length=100)
+  phone              = StringField(required=True, max_length=20)
+  position           = StringField(required=True, max_length=100) # Job title
   security_questions = ListField(required=True)
+  login_timestamp    = StringField(required=False, max_length=100)
+  deleted            = BooleanField(required=False)
 
 class Group(Document):
-  group_id = IntField(required=True)
-  owner_id = IntField(required=True)
-  group_name = StringField(required=True, max_length=30)
-  access_level = IntField(required=True)
-  user_ids = ListField(required=True)
+  name               = StringField(required=True, max_length=100)
+  owner_id           = StringField(required=True)
+  group_name         = StringField(required=True, max_length=30)
+  access_level       = IntField(required=True)
+  user_ids           = ListField(required=True)
+  deleted            = BooleanField(required=True)
 
 class Security(Document):
-  user_id = IntField(required=True)
-  password = StringField(required=True, max_length=100)
-  security_answers = ListField(required=True)
+  user_id            = StringField(required=True)
+  password           = StringField(required=True, max_length=100)
+  security_answers   = ListField(required=True)
 
 class UserLibraryAccess(Document):
-  user_id = IntField(required=True)
-  library_ids = ListField(required=True)
-  library_access = ListField(required=True)
+  user_id            = StringField(required=True)
+  library_ids        = ListField(required=True)
+  library_access     = ListField(required=True)
 
 
 class Library(Document):
-  library_id = IntField(required=True)
-  owner_id = IntField(required=True)
-  min_permission = IntField(required=True)
-  content_ids = ListField(required=True)
+  name               = StringField(required=True, max_length=100)
+  owner_id           = StringField(required=True)
+  min_permission     = IntField(required=True)
+  content_ids        = ListField(required=True)
+  deleted            = BooleanField(required=True)
 
 class Content(Document):
-  content_id = IntField(required=True)
-  data = StringField(required=True)
-
-
-#----------------------------------------------------------------
+  name               = StringField(required=True)
+  data               = StringField(required=True)
+  deleted            = BooleanField(required=True)
 
 def init_database():
   print("Connection to mongoclient")
@@ -100,67 +101,101 @@ def hash_all_password(db):
 # Quickly sets up a local MongoDB database.
 def Setup(db, client):
   # Create dummy content
-  user_table = db["user"]
-  security_table = db["security"]
-  group_table = db["group"]
+  user_table                = db["user"]
+  security_table            = db["security"]
+  group_table               = db["group"]
   user_library_access_table = db["user_library_access"]
-  library_table = db["library"]
-  content_table = db["content"]
+  library_table             = db["library"]
+  content_table             = db["content"]
 
-  user = User(user_id=0,
+  user = User(
     username='admin#1510',
     access_level=3,
     email='djbey@protonmail.com',
     phone='8322740571',
     position='Admin',
-    security_questions=['RTDS', 'Blank Map'])
+    security_questions=['RTDS', 'Blank Map'],
+    login_timestamp=str(datetime.datetime.utcnow()),
+    deleted=False)
 
-  security = Security(user_id=0,
+  security = Security(
+    user_id='',
     password='Sedrftgy2@',
     security_answers=['tamu', 'DIME'])
 
-  group = Group(group_id=0,
-    owner_id=0,
-    group_name='IsGroup',
+  group = Group(
+    name="GroupName",
+    owner_id='',
     access_level=0,
-    user_ids=[0])
+    user_ids=[],
+    deleted=False)
 
-  access = UserLibraryAccess(user_id=0,
-    library_ids=[0],
-    library_access=[3])
+  access = UserLibraryAccess(
+    user_id='',
+    library_ids=[],
+    library_access=[])
 
-  library = Library(library_id=0,
-    owner_id=0,
+  library = Library(
+    name="LibraryName",
+    owner_id='',
     min_permission=0,
-    content_ids=[0,1])
+    content_ids=[],
+    deleted=False)
 
-  content = Content(content_id=0,
-    data='HasContent')
+  content = Content(
+    name='ContentName', 
+    data='HasContent', 
+    deleted=False)
 
 
   # Create the tables by injecting the dummy data
-  user_table.insert_one(json.loads(user.to_json()))
-  user_library_access_table.insert_one(json.loads(access.to_json()))
+  mongo_user = user_table.insert_one(json.loads(user.to_json()))
+  mongo_content = content_table.insert_one(json.loads(content.to_json()))
+
+  # Get the _id generated by mongo
+  #mongo_user = user_table.find_one({'username': user['username']})
+
+  # Update the various user_id/owner_id to the mongo generated _id
+  security['user_id'] = str(mongo_user.inserted_id)
   security_table.insert_one(json.loads(security.to_json()))
+
+  group['owner_id'] = str(mongo_user.inserted_id)
+  group['user_ids'] = [str(mongo_user.inserted_id)]
   group_table.insert_one(json.loads(group.to_json()))
-  library_table.insert_one(json.loads(library.to_json()))
-  content_table.insert_one(json.loads(content.to_json()))
+
+  
+  library['owner_id'] = str(mongo_user.inserted_id)
+  library['content_ids'] = [str(mongo_content.inserted_id)]
+  mongo_library = library_table.insert_one(json.loads(library.to_json()))
+
+  access['user_id'] = str(mongo_user.inserted_id)
+  access['library_ids'] = [str(mongo_library.inserted_id)]
+  access['library_access'] = [3]
+  user_library_access_table.insert_one(json.loads(access.to_json()))
+  
+  
+  
+  
 
 
   # Create indicies
-  user_table.create_index([('user_id', pymongo.TEXT)], name='user_search', default_language='english')
+  '''
+  user_table.create_index([('_id', pymongo.TEXT)], name='user_search', default_language='english')
+  user_table.create_index([('username', pymongo.TEXT)], name='username_search', default_language='english')
+  user_table.create_index([('email', pymongo.TEXT)], name='email_search', default_language='english')
 
-  group_table.create_index([('group_id', pymongo.TEXT)], name='group_search', default_language='english')
+  group_table.create_index([('_id', pymongo.TEXT)], name='group_search', default_language='english')
 
   security_table.create_index([('user_id', pymongo.TEXT)], name='security_search', default_language='english')
 
   user_library_access_table.create_index([('user_id', pymongo.TEXT)], name='user_search', default_language='english')
   #user_library_access_table.create_index([('library_ids', pymongo.TEXT)], name='user_lib_search', default_language='english')
 
-  library_table.create_index([('library_id', pymongo.TEXT)], name='lib_search', default_language='english')
+  library_table.create_index([('_id', pymongo.TEXT)], name='lib_search', default_language='english')
   #library_table.create_index([('owner_id', pymongo.TEXT)], name='owner_lib_search', default_language='english')
 
-  content_table.create_index([('content_id', pymongo.TEXT)], name='content_search', default_language='english')
+  content_table.create_index([('_id', pymongo.TEXT)], name='content_search', default_language='english')
+'''
 
   # Show that this name is successfully there
   dblist = client.list_database_names()
@@ -168,7 +203,7 @@ def Setup(db, client):
   # Hash all previous passwords
   hash_all_password(db)
 
-#----------------------------------------------------------------
+  
 
 '''
 # Quickly sets up a local MongoDB database.
@@ -179,18 +214,15 @@ def Import(data_file = None):
     # Parse the json data file
     with open(data_file, 'r') as f:
       data = json.load(f)
-
     user_table.insert_many(data['user'])
     security_table.insert_many(data['security'])
     group_table.insert_many(data['group'])
     user_library_access_table.insert_many(data['access'])
     library_table.insert_many(data['library'])
     content_table.insert_many(data['content'])
-
     # Show that this name is successfully there
     dblist = client.list_database_names()
     print(dblist)
 '''
-
 if __name__ == '__main__':
   init_database()
