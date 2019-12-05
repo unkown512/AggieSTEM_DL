@@ -61,6 +61,14 @@ $(document).ready(function() {
         title: "",
         data: null,
         defaultContent: '',
+        className: 'control',
+        orderable: false
+
+      },
+      {
+        title: "",
+        data: null,
+        defaultContent: '',
         className: 'select-checkbox',
         orderable: false
       },
