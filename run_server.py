@@ -115,6 +115,8 @@ class ForgotPw(FlaskForm):
 # Get function for user during session
 @login_manager.user_loader
 def load_user(user_id):
+  print(user_id)
+  print(User.get_user(int(user_id)))
   return User.get_user(int(user_id))
 
 '''
@@ -145,10 +147,13 @@ def signin():
       pw = form.password.data
 
       db = db_client()
+      print(user)
 
       if(user_manager.validate_user(db, user, pw)):
-        user_list.append(User(user, form.password.data, 1, user_manager.get_access_level(db, user)))
-        new_user = User(User, form.password.data, 1, user_manager.get_access_level(db, user))
+        # userId = user_manager.getUserID(db, user)
+        userAccessLevel = user_manager.get_access_level(db, user)
+        user_list.append(User(user, form.password.data, 2, userAccessLevel)) # Change parameter '2' to userID
+        new_user = User(user, form.password.data, 2, userAccessLevel)        # Change parameter '2' to userID
         login_user(new_user, remember=form.remember.data)
         return redirect(url_for('dashboard', user=current_user.username, access_level=current_user.access))
       else:
@@ -404,5 +409,5 @@ def db_client():
   return db
 
 if __name__ == "__main__":
-  IP = '128.194.140.214'
-  app.run(host = os.getenv('IP',IP), port=int(os.getenv('PORT',8080)), debug=True)
+    IP = '127.0.0.1'
+    app.run(host = os.getenv('IP',IP), port=int(os.getenv('PORT',80)), debug=True)
