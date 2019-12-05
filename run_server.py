@@ -152,15 +152,12 @@ def signin():
         user_profile = user_manager.get_username_profile(db, user)
         user_list.append(User(user, form.password.data, str(user_profile['_id']), user_manager.get_access_level(db, user)))
         new_user = User(User, form.password.data, str(user_profile['_id']), user_manager.get_access_level(db, user))
-
-        #user_list.append(User(user, form.password.data, 1, user_manager.get_access_level(db, user)))
-        #new_user = User(User, form.password.data, 1, user_manager.get_access_level(db, user))
         login_user(new_user, remember=form.remember.data)
         return redirect(url_for('dashboard', user=current_user.username, access_level=current_user.access))
       else:
         message = "Incorrect username or password"
     else:
-       message = "Invalid Form"
+      message = "Invalid Form"
   elif(request.method == 'GET'):
     render_template("signin.html", form=form)
   return render_template("signin.html", form=form, error=message)
@@ -321,22 +318,31 @@ def manage_users():
       user_data['phone'] = row['phone']
       user_data['groups'] = 'TODO'#group_manager.get_all_groups(db, str(row['_id']))
       user_data['last_login'] = row['login_timestamp']
+      user_data['deleted'] = str(row['deleted'])
       temp.append(user_data)
     data = {}
     data['data'] = temp
     return render_template('manage_users.html', user=current_user.username, data = data, access_level=current_user.access)
   elif(request.method == 'POST'):
-    print("POST REQUEST MANAGE USERS")
     db = db_client()
     post_args = json.loads(request.values.get("data"))
+    print("POST REQUEST")
+    print(post_args)
+    user_id = next(iter(post_args['data']))
     if(post_args['action'] == "remove"):
-      #TODO: Delete user record
-      user_manager.delete_user(db, {})
+      result = user_manager.delete_user(db, user_id)
+      if(result == False):
+        print("FAILED")
+      return {}
+    elif(post_args['action'] == "unremove"):
+      print("HERE UNREMOVE USER")
+      #TODO: fix the post dat sent to match others
+      user_id = post_args['data']['uid']
+      user_manager.update_user(db, user_id, {"deleted": False})
       return {}
     else:
       response_data = {}
       response_data['data'] = []
-      user_id = next(iter(post_args['data']))
       post_args['data'][user_id]['uid'] = user_id
       response_data['data'].append(post_args['data'][user_id])
 
@@ -350,6 +356,7 @@ def manage_users():
       user_manager.update_user(db, user_id, new_user_data)
       return response_data
   else:
+    print("SHIT")
     return render_template('index.html', user=current_user.username, error="TEST", access_level=current_user.access)
 
 @app.route('/manage_groups', methods=['GET', 'POST'])

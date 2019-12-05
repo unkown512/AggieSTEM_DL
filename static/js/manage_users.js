@@ -44,11 +44,17 @@ $(document).ready(function() {
   });
 
   // Create Data Table
-  $('#users_table').DataTable( {
+  var table = $('#users_table').DataTable( {
     dom: "Bfrtip",
     responsive: true,
     idSrc: 'uid',
     data: dataSet['data'],
+    'createdRow': function(row, data, dataIndex) {
+      if(data['deleted'] == "True") {
+        console.log("WTF");
+        $(row).addClass('red');
+      }
+    },
     order: [[1, 'asc']],
     columns: [
       {
@@ -102,7 +108,32 @@ $(document).ready(function() {
       selector: 'td:first-child'
     },
     buttons: [
-      {extend: "remove", editor: editor}
+      {extend: "remove", editor: editor},
+      {extend: "edit", editor: editor},
+      {
+        text: "Undelete",
+        action: function(e, dt, node, config) {
+          var row = table.rows({ selected: true  }).data()[0];
+          if(row['deleted'] == "True") {
+            console.log(row);
+            var json_data = { "data" : {"uid": row['uid']}, "action": "unremove"};
+            undelete_user(json_data);
+          }
+        }
+      }
     ]
-  } ); // END of datatables
+  }); // END of datatables
+  function undelete_user(json_data) {
+    $.ajax({
+      url: "manage_users",
+      type: "POST",
+      data: { "data" : JSON.stringify(json_data)},
+      success: function() {
+        console.log("success")
+      }, function(error) {
+        console.log(error);
+      }
+    });
+
+  }
 }); // END of document onready

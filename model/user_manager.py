@@ -183,17 +183,15 @@ def update_user(db, user_id, user_data):
   return True
 
 
-def delete_user(db, user):
-  users = db['user'].find({'username': user})
+def delete_user(db, user_id):
+  user = db['user'].find_one({'_id': ObjectId(user_id)})
   update = {}
   update['deleted'] = True
-
-  # Return False if more than one user was found
-  if(len(users) > 1):
+  if(user):
+    db['user'].update_one({'_id': ObjectId(user_id)}, {'$set': update})
+    return True
+  else:
     return False
-
-  db['user'].update_one({'_id': str(user['_id'])}, {'$set': update})
-  return True
 
 
 def get_last_login(db, user):
