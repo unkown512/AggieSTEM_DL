@@ -57,6 +57,30 @@
     </div>
   </nav>
 
+  <!-- modal display terms -->
+  <div class="modal fade" id="display_terms" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document" style="max-width: 50%;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="display_terms">Terms and Conditions</h5>
+          <button id="close_display_terms" type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">x</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <p for="msg">Please read through the terms and conditions. By clicking accept, you agree to the terms listed in the document below.</p>
+            <img src="../static/img/terms_cond.png" style="max-width: 100%;" alt="Terms and Conditions">
+          </div>
+          <div class="modal-footer">
+            <button id="cancle_display_terms" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button id="accept_display_terms" type="button" class="btn btn-primary" (click)="openModal()" data-dismiss="modal">Accept</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div> <!-- END modal create message -->
+
   <body id="page-top">
     <section class="about-banner">
         <div class="row d-flex align-items-center justify-content-center">
@@ -120,37 +144,27 @@
               <h3>Requested Data Elements</h3>
               <fieldset class="row-lg-2">
                 <div class="form-row form-input-flex">
-                  <div class="form-input">
                     <label for="data_elements">List data elements being requested:</label>
                     <textarea name="data_elements" rows="5" style="min-width: 100%;" id="data_elements"></textarea>
-                  </div>
                 </div>
               </fieldset>
               <h3>Data Usage</h3>
               <fieldset class="row-lg-2">
                 <div class="form-row form-input-flex">
-                  <div class="form-input">
                     <label for="research_topics">Topic of your research and research questions:</label>
                     <textarea name="research_topics" rows="5" style="min-width: 100%" id="research_topics"></textarea>
-                  </div>
                 </div>
                 <div class="form-row form-input-flex">
-                  <div class="form-input">
                     <label for="authors">List co-researchers and authors seperated by a semicolon (;):</label>
                     <textarea name="authors" rows="3" style="min-width: 100%" id="authors"></textarea>
-                  </div>
                 </div>
                 <div class="form-row form-input-flex">
-                  <div class="form-input">
                     <label for="data_needed">Please DESCRIBE IN DETAIL the data you need Aggie STEM to provide:</label>
                     <textarea name="data_needed" rows="5" style="min-width: 100%" id="data_needed"></textarea>
-                  </div>
                 </div>
                 <div class="form-row form-input-flex">
-                  <div class="form-input">
                     <label for="data_how">Please DESCRIBE IN DETAIL how the data will be used:</label>
                     <textarea name="data_how" rows="3" style="min-width: 100%" id="data_how"></textarea>
-                  </div>
                 </div>
               </fieldset>
               <h3>Data Access Details</h3>
@@ -190,10 +204,8 @@
                   </div>
                 </div>
                 <div class="form-row form-input-flex">
-                  <div class="form-input">
                     <label for="data_storage">Data storage (how they will be stored and how long they will be retained):</label>
                     <textarea name="data_how" rows="3" style="min-width: 100%" id="data_how"></textarea>
-                  </div>
                 </div>
                 <label>Period of using data (How long will the data be stored and used?):</label>
                 <div class="form-row form-input-flex">
@@ -217,7 +229,11 @@
                   </div>
                 </div>
               </fieldset>
-              <button type="submit" class="btn btn-primary">Submit</button> </br> </br>
+              <!-- <button type="submit" class="btn btn-primary">Submit</button> </br> </br>-->
+              <!-- Button trigger modal -->
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#display_terms">
+                Submit
+              </button>
             </form>
           </div>
       </div>

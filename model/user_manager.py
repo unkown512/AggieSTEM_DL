@@ -2,41 +2,59 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 from uuid import uuid4
 
+import datetime
+import random
+from bson import ObjectId
+
 def unique_key():
   return str(uuid4())
 
 def get_access_level(db, username):
   # Return true if user access level is high enough
   user = db['user'].find_one({'username': username})
-  return int(user['access_level'])
+  return user['access_level']
 
+def get_user_id(db, username):
+  user_id = db['user'].find_one({'username': username})
+  return user_id['_id']
 
 def validate_user(db, username, pw):
   """Check if a user's credential is correct."""
   print('\n\nVALIDATING USER\n\n')
   user = db['user'].find_one({'username': username})
 
+  update_timestamp = {}
+  update_timestamp['login_timestamp'] = str(datetime.datetime.utcnow())
+
   # Check if user exists
   if user is None:
+    print(username + " does not exist!")
     return False
 
-  user_id = user['user_id']
+  user_id = str(user['_id'])
+  print("User ID: " + user_id)
 
   # Check user's password against what is stored in the database
   db_pw = db['security'].find_one({'user_id': user_id})
 
   # Check if the password for the user exists
   if db_pw is None:
+    print("User password does not exist!")
     return False
 
   # For backwards compatibility, treat password as unhashed first
   if db_pw['password'] == pw:
+    db['user'].update_one({'_id': user_id}, {'$set': update_timestamp})
+    print("Valid user!")
     return True
 
   # Check for hashed password
   if check_password_hash(db_pw['password'], pw):
+    db['user'].update_one({'_id': user_id}, {'$set': update_timestamp})
+    print("Valid user!")
     return True
 
+  print("Invalid user!")
   return False
 
 
@@ -51,11 +69,11 @@ def check_security_answers(db, username, answers, minimum_correct=0):
       correctly in order to pass the test.
 
   """
-  user = get_user_profile(db, username)
+  user = get_username_profile(db, username)
   if user is None:
     return False
 
-  security = db['security'].find_one({'user_id': user['user_id']})
+  security = db['security'].find_one({'_id': str(user['_id'])})
   if security is None:
     return False
   correct_answers = security['security_answers']
@@ -83,8 +101,8 @@ def add_user(db, user_data):
   username, password, email, position, phone = user_data[:5]
 
   # Set the new user id
-  users = db['user'].find()
-  next_id = max(u['user_id'] for u in users) + 1
+  #users = db['user'].find()
+  #next_id = max(u['_id'] for u in users) + 1
 
   # Set Access Level. 1 will be for a user that has some content to view.
   # Default level is 0
@@ -99,19 +117,21 @@ def add_user(db, user_data):
 
   password_hash = generate_password_hash(password)
 
+
   # Create the data JSON
-  db['user'].insert_one({
-    'user_id': next_id,
+  new_user = db['user'].insert_one({
     'username': username,
     'access_level': access_level,
     'email': email,
     'position': position,
     'phone': phone,
-    'security_questions': security_questions
+    'security_questions': security_questions,
+    'login_timestamp':str(datetime.datetime.utcnow()),
+    'deleted': False
   })
 
   db['security'].insert_one({
-    'user_id': next_id,
+    'user_id': str(new_user.inserted_id),
     'password': password_hash,
     'security_answers': security_answers_hash
   })
@@ -136,35 +156,45 @@ def hash_all_password(db):
                                     for ans in security['security_answers']]
 
     if update:
-      passwords.append((security['user_id'], update))
+      passwords.append((str(security['_id']), update))
   print("Will update these users: ", passwords)
 
   # Update these users
-  for user_id, update in passwords:
-    db['security'].update_one({'user_id': user_id}, {'$set': update})
+  for _id, update in passwords:
+    db['security'].update_one({'_id': _id}, {'$set': update})
 
 
-def get_user_profile(db, user):
+def get_username_profile(db, username):
   """Return one user profile."""
-  return db['user'].find_one({'username': user})
+  return db['user'].find_one({'username': username})
+
+def get_userid_profile(db, user_id):
+  """Return one user profile."""
+  return db['user'].find_one({'_id': user_id})
 
 
 def get_all_users(db):
   """Return all users in database."""
   return list(db['user'].find())
 
-
-def update_user(db, user_data):
-  # TODO
+# TODO: Make sure this works correctly
+def update_user(db, user_id, user_data):
+  db['user'].update_one({'_id': ObjectId(user_id)}, {'$set': user_data})
   return True
 
 
-def delete_user(db, user):
-  # TODO
-  return True
+def delete_user(db, user_id):
+  user = db['user'].find_one({'_id': ObjectId(user_id)})
+  update = {}
+  update['deleted'] = True
+  if(user):
+    db['user'].update_one({'_id': ObjectId(user_id)}, {'$set': update})
+    return True
+  else:
+    return False
 
 
 def get_last_login(db, user):
-  # TODO: RETURN LAST LOGIN TIME
-  return 0
+  u = db['user'].find_one({'username': user})
+  return u['login_timestamp']
 

@@ -5,6 +5,8 @@
 '''
 import os
 import json
+import random
+
 # Flask Server Imports
 from flask import Flask
 from flask import request
@@ -118,9 +120,7 @@ class ForgotPw(FlaskForm):
 # Get function for user during session
 @login_manager.user_loader
 def load_user(user_id):
-  print(user_id)
-  print(User.get_user(int(user_id)))
-  return User.get_user(int(user_id))
+  return User.get_user(str(user_id))
 
 '''
   Starting of server routes and controller section of the application
@@ -153,16 +153,15 @@ def signin():
       print(user)
 
       if(user_manager.validate_user(db, user, pw)):
-        # userId = user_manager.getUserID(db, user)
-        userAccessLevel = user_manager.get_access_level(db, user)
-        user_list.append(User(user, form.password.data, 2, userAccessLevel)) # Change parameter '2' to userID
-        new_user = User(user, form.password.data, 2, userAccessLevel)        # Change parameter '2' to userID
+        user_profile = user_manager.get_username_profile(db, user)
+        user_list.append(User(user, form.password.data, str(user_profile['_id']), user_manager.get_access_level(db, user)))
+        new_user = User(User, form.password.data, str(user_profile['_id']), user_manager.get_access_level(db, user))
         login_user(new_user, remember=form.remember.data)
         return redirect(url_for('dashboard', user=current_user.username, access_level=current_user.access))
       else:
         message = "Incorrect username or password"
     else:
-       message = "Invalid Form"
+      message = "Invalid Form"
   elif(request.method == 'GET'):
     render_template("signin.html", form=form)
   return render_template("signin.html", form=form, error=message)
@@ -181,10 +180,13 @@ def signup():
 
         NOTE: TEMP_LOGIN_DB WILL BE REMOVED ONCE 'user_manager' is complete!!!
       '''
-      user_data = [form.username.data, form.password.data, form.email.data,
-        form.position.data, form.phone.data]
+
+      #unique_number = ''  #'#' + str(random.randrange(10000)).zfill(4)
+      user_data = [form.username.data, form.password.data, form.email.data, form.position.data, form.phone.data]
       db = db_client()
       user_manager.add_user(db, user_data)
+
+      print("User: " + user_data[0] + " successfully created...")
       return redirect(url_for('signin'))
     else:
       print("INVALID FORM")
@@ -229,7 +231,7 @@ def userProfile():
   if(request.method == 'GET'):
     username = current_user.username
     db = db_client()
-    userdata = user_manager.get_user_profile(db, username)
+    userdata = user_manager.get_username_profile(db, username)
     phonenumber = userdata['phone']
     email = userdata['email']
     position = userdata['position']
@@ -239,13 +241,13 @@ def userProfile():
       position = "Senior Doc"
     else:
       position = "Researcher"
-    return render_template('userProfile.html', user=username,
+    return render_template('user_profile.html', user=username,
       email= email, phonenumber=phonenumber, position = position)
   elif(request.method == 'POST'):
     data = {}
-    return render_template('userProfile.html', data=data)
+    return render_template('user_profile.html', data=data)
   else:
-    return render_template('userProfile.html', data=data, error="ERROR: Try Again")
+    return render_template('user_profile.html', data=data, error="ERROR: Try Again")
 
 # Logout User
 @app.route('/logout', methods=['GET'])
@@ -299,6 +301,31 @@ def request_data_form():
   else:
     return render_template('signin.html', form=form, error="TEST")
 
+@app.route('/table_reload', methods=['GET', 'POST'])
+@login_required
+def table_reload():
+  print("TEST AJAX RELOAD")
+  db = db_client()
+  group_user_list = user_manager.get_all_users(db)
+  # TODO: Fix get_all_groups()
+  temp = []
+  for row in group_user_list:
+    user_data = {}
+    user_data['uid'] = str(row['_id'])
+    user_data['username'] = row['username']
+    user_data['position'] = row['position']
+    user_data['access_level'] = row['access_level']
+    user_data['email'] = row['email']
+    user_data['phone'] = row['phone']
+    user_data['groups'] = 'TODO'#group_manager.get_all_groups(db, str(row['_id']))
+    user_data['last_login'] = row['login_timestamp'][0:16]
+    user_data['deleted'] = str(row['deleted'])
+    temp.append(user_data)
+  data = {}
+  data['data'] = temp
+  return data
+
+
 @app.route('/manage_users', methods=['GET', 'POST'])
 @login_required
 def manage_users():
@@ -318,18 +345,20 @@ def manage_users():
     if(user_manager.get_access_level(db, current_user.username) < 2):
       return redirect(url_for('dashboard', user=current_user.username, access_level=current_user.access))
 
-    user_list = user_manager.get_all_users(db)
+    group_user_list = user_manager.get_all_users(db)
+    # TODO: Fix get_all_groups()
     temp = []
-    for row in user_list:
+    for row in group_user_list:
       user_data = {}
-      user_data['uid'] = row['user_id']
+      user_data['uid'] = str(row['_id'])
       user_data['username'] = row['username']
       user_data['position'] = row['position']
       user_data['access_level'] = row['access_level']
       user_data['email'] = row['email']
       user_data['phone'] = row['phone']
-      user_data['groups'] = ""
-      user_data['last_login'] = ""
+      user_data['groups'] = 'TODO'#group_manager.get_all_groups(db, str(row['_id']))
+      user_data['last_login'] = row['login_timestamp'][0:16]
+      user_data['deleted'] = str(row['deleted'])
       temp.append(user_data)
     data = {}
     data['data'] = temp
@@ -337,25 +366,42 @@ def manage_users():
   elif(request.method == 'POST'):
     db = db_client()
     post_args = json.loads(request.values.get("data"))
+    print("POST REQUEST")
+    print(post_args)
+    user_id = next(iter(post_args['data']))
     if(post_args['action'] == "remove"):
-      #TODO: Delete user record
-      user_manager.delete_user(db, {})
+      result = user_manager.delete_user(db, user_id)
+      if(result == False):
+        print("FAILED")
+      return {}
+    elif(post_args['action'] == "unremove"):
+      print("HERE UNREMOVE USER")
+      #TODO: fix the post dat sent to match others
+      user_id = post_args['data']['uid']
+      user_manager.update_user(db, user_id, {"deleted": False})
       return {}
     else:
+      response_data = {}
+      response_data['data'] = []
+      post_args['data'][user_id]['uid'] = user_id
+      response_data['data'].append(post_args['data'][user_id])
+
       new_user_data = {}
-      new_user_data['data'] = []
-      for row in post_args['data']:
-        post_args['data'][row]['uid'] = row
-        new_user_data['data'].append(post_args['data'][row])
-      #TODO: Update user record
-      user_manager.update_user(db, new_user_data)
-      return new_user_data
+      new_user_data['access_level'] = int(response_data['data'][0]['access_level'])
+      new_user_data['position'] = response_data['data'][0]['position']
+
+      user_manager.update_user(db, user_id, new_user_data)
+      return response_data
   else:
+    print("SHIT")
     return render_template('index.html', user=current_user.username, error="TEST", access_level=current_user.access)
 
 @app.route('/manage_groups', methods=['GET', 'POST'])
 @login_required
 def manage_groups():
+  db = db_client()
+  if(user_manager.get_access_level(db, current_user.username) < 2):
+    return redirect(url_for('dashboard', user=current_user.username, access_level=current_user.access))
   if(request.method == 'GET'):
     '''
     TODO: Get all users and display on page
@@ -389,14 +435,14 @@ def message_users():
     db = db_client()
     if(user_manager.get_access_level(db, current_user.username) != 3):
       return redirect(url_for('dashboard', user=current_user.username, access_level=current_user.access))
-    user_list = user_manager.get_all_users(db)
+    message_user_list = user_manager.get_all_users(db)
 
     groups = ["Camp A", "Camp B", "Camp C", "Camp D"]
     temp = []
     i = 0
-    for row in user_list:
+    for row in message_user_list:
       user_data = {}
-      user_data['uid'] = row['user_id']
+      user_data['uid'] = str(row['_id'])
       user_data['username'] = row['username']
       user_data['phone'] = row['phone']
       user_data['groups'] = groups[i] #Make sure it works with multigroups/user
@@ -417,11 +463,13 @@ def message_users():
 def db_client():
   try:
     client = pymongo.MongoClient("mongodb://128.194.140.214:27017/")
+    #client = pymongo.MongoClient("mongodb://localhost:27017/")
   except pymongo.errors.ServerSelectionTimeoutError as err:
     print(err)
   db = client["AggieSTEM"]
   return db
 
 if __name__ == "__main__":
-    IP = '127.0.0.1'
-    app.run(host = os.getenv('IP',IP), port=int(os.getenv('PORT',80)), debug=True)
+  IP = '128.194.140.214'
+  #IP = '127.0.0.1'
+  app.run(host = os.getenv('IP',IP), port=int(os.getenv('PORT',8080)), debug=True)
