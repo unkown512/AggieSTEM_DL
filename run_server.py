@@ -226,13 +226,13 @@ def userProfile():
       position = "Senior Doc"
     else:
       position = "Researcher"
-    return render_template('userProfile.html', user=username,
+    return render_template('user_profile.html', user=username,
       email= email, phonenumber=phonenumber, position = position)
   elif(request.method == 'POST'):
     data = {}
-    return render_template('userProfile.html', data=data)
+    return render_template('user_profile.html', data=data)
   else:
-    return render_template('userProfile.html', data=data, error="ERROR: Try Again")
+    return render_template('user_profile.html', data=data, error="ERROR: Try Again")
 
 # Logout User
 @app.route('/logout', methods=['GET'])
