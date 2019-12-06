@@ -31,8 +31,11 @@ from model import user_manager
 from model import group_manager
 from model import library_manager
 
-# email impots
-import smtplib, ssl
+# email imports
+import smtplib, ssl 
+
+#sms import
+import boto3
 
 # MongoDB imports
 import pymongo
@@ -147,6 +150,7 @@ def signin():
       pw = form.password.data
 
       db = db_client()
+      print(user)
 
       if(user_manager.validate_user(db, user, pw)):
         user_profile = user_manager.get_username_profile(db, user)
@@ -189,6 +193,17 @@ def signup():
       return redirect(url_for('signin'))
   else:
     return redirect(url_for('signin'))
+
+# Send SMS
+@app.route('/send_sms', methods=['GET'])
+@login_required
+def send_sms():
+  if(request.method == 'GET'):
+    client = boto3.client('sns')
+    phone_number='18322740571'
+    message='AggieSTEM sms test'
+    client.publish(PhoneNumber=phone_number, Message=message)
+    return("SMS SENT")
 
 # Send Emails
 @app.route('/send_email', methods=['GET'])
