@@ -32,7 +32,7 @@ from model import group_manager
 from model import library_manager
 
 # email imports
-import smtplib, ssl 
+import smtplib, ssl
 
 #sms import
 import boto3
@@ -154,8 +154,9 @@ def signin():
 
       if(user_manager.validate_user(db, user, pw)):
         user_profile = user_manager.get_username_profile(db, user)
-        user_list.append(User(user, form.password.data, str(user_profile['_id']), user_manager.get_access_level(db, user)))
-        new_user = User(User, form.password.data, str(user_profile['_id']), user_manager.get_access_level(db, user))
+        user_access_level = user_manager.get_access_level(db, user)
+        new_user = User(user, form.password.data, str(user_profile['_id']), user_access_level)
+        user_list.append(new_user)
         login_user(new_user, remember=form.remember.data)
         return redirect(url_for('dashboard', user=current_user.username, access_level=current_user.access))
       else:
