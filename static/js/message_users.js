@@ -38,7 +38,7 @@ $(document).ready(function() {
           text: '<a id="btn-create" (click)="clearModal()" data-toggle="modal" data-target="#create_msg">Create Message</a>',
           action: function(e, dt, node, config) {
           //TODO
-					let rows = table.rows( { selected: true } ).indexes();
+          let rows = table.rows( { selected: true } ).indexes();
           console.log( table.cells(rows, 3).data());
           console.log('Button Clicked');
           return table.cells(rows, 3).data()
