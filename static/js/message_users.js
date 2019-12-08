@@ -35,20 +35,15 @@ $(document).ready(function() {
     groups: groupSet,
     buttons: [
       {
-        text: '<a id="btn-create" (click)="clearModal()" data-toggle="modal" data-target="#send_msg">Send Message</a>',
-        action: function(e, dt, node, config) {
+          text: '<a id="btn-create" (click)="clearModal()" data-toggle="modal" data-target="#create_msg">Create Message</a>',
+          action: function(e, dt, node, config) {
           //TODO
           console.log('Button Clicked');
-        }
-      },
-      {
-        text: '<a id="btn-create" (click)="clearModal()" data-toggle="modal" data-target="#create_msg">Create Message</a>',
-        action: function(e, dt, node, config) {
-          //TODO
-          console.log('Button Clicked');
-        }
+          }
+
       }
     ],
+
     idSrc: 'uid',
     dom: 'Blfrtip',
     order: [[1, 'asc']],
