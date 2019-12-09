@@ -134,6 +134,7 @@ $(document).ready(function() {
         data: { "numbers": JSON.stringify(numbers.toArray()),
                 "message": JSON.stringify(message) }, 
         success: function() {
+          $("#txtPhone").val('');
           console.log("number success");
         }, function(error) {
           console.log(error);
