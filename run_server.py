@@ -202,11 +202,7 @@ def signup():
 @login_required
 def send_sms():
   if(request.method == 'GET'):
-    print("h")
-    #phone_number='18322740571'
-    #message='AggieSTEM sms test'
-    #client.publish(PhoneNumber=phone_number, Message=message)
-    #return("SMS SENT")
+    print("do something")
   elif(request.method == 'POST'):
     # TODO - parse numbers, create topics (send message to mutiple numbers), send message
     numbers = ast.literal_eval(request.form['numbers'])
@@ -223,9 +219,9 @@ def send_sms():
     print("messages sent")
     client.delete_topic(TopicArn=topic_arn)
     print("topic deleted")
-    flash("Message sent")
+    flash("Message sent") # Doesnt work 
   else:
-    return render
+    print("do something")
   return("testing");
 
 # Send Emails
