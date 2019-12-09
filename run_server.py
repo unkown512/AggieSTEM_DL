@@ -14,6 +14,7 @@ from flask import request
 from flask import render_template, redirect
 from flask import url_for
 from flask import send_file
+from flask import flash
 from flask_mobility import Mobility
 from flask_mobility.decorators import mobile_template, mobilized
 from flask_bootstrap import Bootstrap
@@ -202,7 +203,6 @@ def signup():
 def send_sms():
   if(request.method == 'GET'):
     print("h")
-    #client = boto3.client('sns')
     #phone_number='18322740571'
     #message='AggieSTEM sms test'
     #client.publish(PhoneNumber=phone_number, Message=message)
@@ -212,9 +212,20 @@ def send_sms():
     numbers = ast.literal_eval(request.form['numbers'])
     message = request.form['message']
     print("post")
+    
+    client = boto3.client('sns')
+    topic = client.create_topic(Name="message")
+    topic_arn = topic['TopicArn']
     for num in numbers:
+      client.subscribe(TopicArn=topic_arn, Protocol='sms', Endpoint="+1" + num)
       print(num)
-    print(message)
+    #client.publish(Message = message, TopicArn=topic_arn)
+    print("messages sent")
+    client.delete_topic(TopicArn=topic_arn)
+    print("topic deleted")
+    flash("Message sent")
+  else:
+    return render
   return("testing");
 
 # Send Emails
