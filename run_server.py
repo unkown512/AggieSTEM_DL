@@ -6,6 +6,7 @@
 import os
 import json
 import random
+import ast
 
 # Flask Server Imports
 from flask import Flask
@@ -208,10 +209,11 @@ def send_sms():
     #return("SMS SENT")
   elif(request.method == 'POST'):
     # TODO - parse numbers, create topics (send message to mutiple numbers), send message
-    numbers = request.form['numbers']
+    numbers = ast.literal_eval(request.form['numbers'])
     message = request.form['message']
     print("post")
-    print(numbers)
+    for num in numbers:
+      print(num)
     print(message)
   return("testing");
 
