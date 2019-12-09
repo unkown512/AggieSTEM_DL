@@ -6,6 +6,7 @@
 import os
 import json
 import random
+import ast
 
 # Flask Server Imports
 from flask import Flask
@@ -13,6 +14,7 @@ from flask import request
 from flask import render_template, redirect
 from flask import url_for
 from flask import send_file
+from flask import flash
 from flask_mobility import Mobility
 from flask_mobility.decorators import mobile_template, mobilized
 from flask_bootstrap import Bootstrap
@@ -32,7 +34,7 @@ from model import group_manager
 from model import library_manager
 
 # email imports
-import smtplib, ssl 
+import smtplib, ssl
 
 #sms import
 import boto3
@@ -154,8 +156,9 @@ def signin():
 
       if(user_manager.validate_user(db, user, pw)):
         user_profile = user_manager.get_username_profile(db, user)
-        user_list.append(User(user, form.password.data, str(user_profile['_id']), user_manager.get_access_level(db, user)))
-        new_user = User(User, form.password.data, str(user_profile['_id']), user_manager.get_access_level(db, user))
+        user_access_level = user_manager.get_access_level(db, user)
+        new_user = User(user, form.password.data, str(user_profile['_id']), user_access_level)
+        user_list.append(new_user)
         login_user(new_user, remember=form.remember.data)
         return redirect(url_for('dashboard', user=current_user.username, access_level=current_user.access))
       else:
@@ -195,15 +198,35 @@ def signup():
     return redirect(url_for('signin'))
 
 # Send SMS
-@app.route('/send_sms', methods=['GET'])
+@app.route('/send_sms', methods=['GET', 'POST'])
 @login_required
 def send_sms():
+  db = db_client()
+  if(user_manager.get_access_level(db, current_user.username) < 2):
+    return redirect(url_for('dashboard', user=current_user.username, access_level=current_user.access))
+
   if(request.method == 'GET'):
+    print("do something")
+  elif(request.method == 'POST'):
+    # TODO - parse numbers, create topics (send message to mutiple numbers), send message
+    numbers = ast.literal_eval(request.form['numbers'])
+    message = request.form['message']
+    print("post")
+    
     client = boto3.client('sns')
-    phone_number='18322740571'
-    message='AggieSTEM sms test'
-    client.publish(PhoneNumber=phone_number, Message=message)
-    return("SMS SENT")
+    topic = client.create_topic(Name="message")
+    topic_arn = topic['TopicArn']
+    for num in numbers:
+      client.subscribe(TopicArn=topic_arn, Protocol='sms', Endpoint="+1" + num)
+      print(num)
+    #client.publish(Message = message, TopicArn=topic_arn)
+    print("messages sent")
+    client.delete_topic(TopicArn=topic_arn)
+    print("topic deleted")
+    flash("Message sent") # Doesnt work 
+  else:
+    print("do something")
+  return("testing");
 
 # Send Emails
 @app.route('/send_email', methods=['GET'])
@@ -423,7 +446,10 @@ def manage_groups():
 @app.route('/message_users', methods=['GET', 'POST'])
 @login_required
 def message_users():
-  # TODO: CHECK IF USER IS ADMIN
+  db = db_client()
+  if(user_manager.get_access_level(db, current_user.username) < 2):
+    return redirect(url_for('dashboard', user=current_user.username, access_level=current_user.access))
+
   if(request.method == 'GET'):
     '''
     TODO:
@@ -470,6 +496,6 @@ def db_client():
   return db
 
 if __name__ == "__main__":
-  IP = '128.194.140.214'
-  #IP = '127.0.0.1'
+  #IP = '128.194.140.214'
+  IP = '127.0.0.1'
   app.run(host = os.getenv('IP',IP), port=int(os.getenv('PORT',8080)), debug=True)

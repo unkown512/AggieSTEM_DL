@@ -19,7 +19,7 @@
     <!-- Custom fonts for this template -->
     <!-- <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css"> -->
     <link rel="stylesheet" href="{{ url_for('static', filename='vendor/fontawesome-free/css/all.min.css') }}">
-    
+
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Merriweather:400,300,300italic,400italic,700,700italic,900,900italic' rel='stylesheet' type='text/css'>
 
@@ -37,17 +37,17 @@
 
     <!--- MOBILE --->
     <link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.0/jquery.mobile-1.3.0.min.css" />
-    
+
     <!-- DataTables Stuff -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dataTables/jquery.dataTables.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dataTables/select.dataTables.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dataTables/buttons.dataTables.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dataTables/columnDropdown.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dataTables/responsive.dataTables.min.css') }}">
-    
-    
-    
-   
+
+
+
+
 
   </head>
 
@@ -74,13 +74,13 @@
 
     <!-- TODO Will -->
     <section class="about-banner">
-      <div class="container">               
+      <div class="container">
         <div class="row d-flex align-items-center justify-content-center">
           <div class="about-content col-lg-12">
             <h1 class="text-white">
               Message Users
             </h1>
-          </div>    
+          </div>
         </div>
       </div>
     </section>
@@ -108,7 +108,7 @@
       </table>
     </div>
 
-  </body> 
+  </body>
 
   <!-- modal create message -->
   <div class="modal fade" id="create_msg" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -122,7 +122,7 @@
         </div>
         <div class="modal-body">
           <div class="form-group">
-            <p for="msg">Messages are limitedto 140 characters and is recommended to be simple, as this will insure 
+            <p for="msg">Messages are limitedto 140 characters and is recommended to be simple, as this will insure
               it is recieved in proper format.
             </p>
           </div>
@@ -140,35 +140,6 @@
       </div>
     </div>
   </div> <!-- END modal create message -->
-
-  <!-- modal send message -->
-  <div class="modal fade" id="send_msg" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="send_msg">Send Text Message</h5>
-          <button id="close_create_msg" type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">x</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <div class="form-group">
-            <p for="msg">Are you sure you would like to send the below message to X users?</p>
-          </div>
-          <div class="form-group">
-            <div class="form-group">
-              <label for="txtPhone">Message</label>
-              <textarea class="form-control" rows="5" id="txtPhone"></textarea>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button id="cancle_send_msg" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-            <button id="confirm_send_msg" type="button" class="btn btn-primary" (click)="openModal()" data-dismiss="modal">Confirm</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div> <!-- END modal send message -->
 
   <script type= "text/javascript">
     var dataSet = {{data|safe}}, groupSet = {{groups|safe}};
@@ -201,7 +172,7 @@
     <!-- Custom scripts for this template -->
     <script src="{{ url_for('static', filename='js/creative.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap-multiselect.js') }}"></script>
-    
+
     <script src="{{ url_for('static', filename='js/phonenumber.js') }}"></script>
     <script src="{{ url_for('static', filename='js/message_users.js') }}"></script>
 
@@ -210,5 +181,5 @@
     <script src="{{ url_for('static', filename='js/dataTables/dataTables.select.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/dataTables/dataTables.buttons.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/dataTables/dataTables.responsive.min.js') }}"></script>
-    
+
 </html>
