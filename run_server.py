@@ -201,6 +201,10 @@ def signup():
 @app.route('/send_sms', methods=['GET', 'POST'])
 @login_required
 def send_sms():
+  db = db_client()
+  if(user_manager.get_access_level(db, current_user.username) < 2):
+    return redirect(url_for('dashboard', user=current_user.username, access_level=current_user.access))
+
   if(request.method == 'GET'):
     print("do something")
   elif(request.method == 'POST'):
@@ -442,7 +446,10 @@ def manage_groups():
 @app.route('/message_users', methods=['GET', 'POST'])
 @login_required
 def message_users():
-  # TODO: CHECK IF USER IS ADMIN
+  db = db_client()
+  if(user_manager.get_access_level(db, current_user.username) < 2):
+    return redirect(url_for('dashboard', user=current_user.username, access_level=current_user.access))
+
   if(request.method == 'GET'):
     '''
     TODO:
@@ -489,6 +496,6 @@ def db_client():
   return db
 
 if __name__ == "__main__":
-  IP = '128.194.140.214'
-  #IP = '127.0.0.1'
+  #IP = '128.194.140.214'
+  IP = '127.0.0.1'
   app.run(host = os.getenv('IP',IP), port=int(os.getenv('PORT',8080)), debug=True)

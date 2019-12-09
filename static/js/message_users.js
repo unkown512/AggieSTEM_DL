@@ -119,7 +119,7 @@ $(document).ready(function() {
     console.log( table.cells(rows, 3).data().length);
     console.log('Button Clicked');
     if (message.length == 0) {
-      alert("Please enter you text message.");
+      alert("Please enter your text message.");
     }
     else if ( message.length > 140) {
       alert("Your text message is too long.");
