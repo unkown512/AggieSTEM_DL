@@ -37,12 +37,12 @@ $(document).ready(function() {
       {
           text: '<a id="btn-create" (click)="clearModal()" data-toggle="modal" data-target="#create_msg">Create Message</a>',
           action: function(e, dt, node, config) {
-          //TODO
-          let rows = table.rows( { selected: true } ).indexes();
-          console.log( table.cells(rows, 3).data());
-          console.log('Button Clicked');
-          return table.cells(rows, 3).data()
-          console.log('Button Clicked');
+            let rows = table.rows( { selected: true } ).indexes();
+            let numbers = table.cells(rows, 3).data();
+            if (numbers.length == 0) { 
+              alert("You must select one or more phone numbers.");
+              e.stopPropagation();
+            }
           }
 
       }
@@ -111,4 +111,34 @@ $(document).ready(function() {
       }
     });
   });
+
+  $('#send_create_msg').on('click', function() {
+    let rows = table.rows( { selected: true } ).indexes();
+    let numbers = table.cells(rows, 3).data();
+    let message = $("#txtPhone").val();
+    console.log(message);
+    console.log( table.cells(rows, 3).data().length);
+    console.log('Button Clicked');
+    if (message.length == 0) {
+      alert("Please enter you text message.");
+    }
+    else if ( message.length > 140) {
+      alert("Your text message is too long.");
+    }
+    else {
+      console.log(numbers.toArray());
+      console.log(message);
+      $.ajax({
+        url: "/send_sms",
+        type: "POST",
+        data: { "numbers": JSON.stringify(numbers.toArray()),
+                "message": JSON.stringify(message) }, 
+        success: function() {
+          console.log("number success");
+        }, function(error) {
+          console.log(error);
+        }
+      });
+    }
+  }); // End send_create_msg
 }); // End of document on ready

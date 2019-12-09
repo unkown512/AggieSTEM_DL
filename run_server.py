@@ -196,15 +196,24 @@ def signup():
     return redirect(url_for('signin'))
 
 # Send SMS
-@app.route('/send_sms', methods=['GET'])
+@app.route('/send_sms', methods=['GET', 'POST'])
 @login_required
 def send_sms():
   if(request.method == 'GET'):
-    client = boto3.client('sns')
-    phone_number='18322740571'
-    message='AggieSTEM sms test'
-    client.publish(PhoneNumber=phone_number, Message=message)
-    return("SMS SENT")
+    print("h")
+    #client = boto3.client('sns')
+    #phone_number='18322740571'
+    #message='AggieSTEM sms test'
+    #client.publish(PhoneNumber=phone_number, Message=message)
+    #return("SMS SENT")
+  elif(request.method == 'POST'):
+    # TODO - parse numbers, create topics (send message to mutiple numbers), send message
+    numbers = request.form['numbers']
+    message = request.form['message']
+    print("post")
+    print(numbers)
+    print(message)
+  return("testing");
 
 # Send Emails
 @app.route('/send_email', methods=['GET'])
