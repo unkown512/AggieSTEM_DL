@@ -32,7 +32,6 @@ $(document).ready(function() {
   var table = $('#message_users_table').DataTable( {
     responsive: true,
     data: dataSet['data'],
-    groups: groupSet,
     buttons: [
       {
           text: '<a id="btn-create" (click)="clearModal()" data-toggle="modal" data-target="#create_msg">Create Message</a>',
