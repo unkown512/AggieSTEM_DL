@@ -209,11 +209,12 @@ def send_sms():
     print("do something")
   elif(request.method == 'POST'):
     numbers = ast.literal_eval(request.form['numbers'])
-    message = request.form['message']
+    message = request.form['message'][1:-1]
     
     client = boto3.client('sns')
     topic = client.create_topic(Name="message")
     topic_arn = topic['TopicArn']
+    
     for num in numbers:
       client.subscribe(TopicArn=topic_arn, Protocol='sms', Endpoint="+1" + num)
     
@@ -222,6 +223,7 @@ def send_sms():
     for sub in client.list_subscriptions()['Subscriptions']:
       client.unsubscribe(SubscriptionArn=sub['SubscriptionArn'])
     client.delete_topic(TopicArn=topic_arn)
+    
     flash("Message sent") # Doesnt work 
   else:
     print("do something")
