@@ -57,6 +57,8 @@
             <li class="nav-item" id="manageuser" name="manageuser">
               <a class="nav-link js-scroll-trigger" href="{{ url_for('manage_users') }}">Manage Users</a>
             </li>
+            {% endif %}
+            {% if access_level >= 4 %}
             <li class="nav-item" id="managegroups" name="managegroups">
               <a class="nav-link js-scroll-trigger" href="{{ url_for('manage_groups') }}">Manage Groups</a>
             </li>
@@ -98,7 +100,7 @@
             <p class="text-white mb-4">Secure messaging system for alerts and updates.</p>
             <p class="text-white mb-4">Create shared, global, and personal medica libraries of data.</p>
             
-            <a class="btn btn-light btn-xl js-scroll-trigger" href="#services">Get Started!</a>
+            <a class="btn btn-light btn-xl js-scroll-trigger" href="#services">View Available Tools</a>
           </div>
         </div>
       </div>
@@ -123,7 +125,6 @@
                   <h3 class="mb-3">Media Collection</h3>
                   <!-- img -->
                   <p class="text-muted mb-0">View personal and shared video, audio, text, image, and PDF files.</p>
-                  <a href="#quqn">Learn More</a>
                 </div>
               </div> 
               <div class="col-lg-4 col-md-6 text-center">
@@ -131,7 +132,6 @@
                   <h3 class="mb-3">Upload New Media File</h3>
                   <!-- img -->
                   <p class="text-muted mb-0">Upload video, audio, text, image, and PDF files.</p>
-                  <a href="#quqn">Learn More</a>
                 </div>
               </div> 
               <div class="col-lg-4 col-md-6 text-center">
@@ -139,7 +139,6 @@
                   <h3 class="mb-3">Message System</h3>
                   <!-- img -->
                   <p class="text-muted mb-0">Send out scheduled end-to-end encrypted text messages to users</p>
-                  <a href="#quqn">Learn More</a>
                 </div>
               </div> 
             </div>
@@ -154,7 +153,6 @@
                   <h3 class="mb-3">Media Collection</h3>
                   <!-- img -->
                   <p class="text-muted mb-0">View personal and shared video, audio, text, image, and PDF files.</p>
-                  <a href="#quqn">Learn More</a>
                 </div>
               </div> 
               <div class="col-lg-4 col-md-6 text-center">
@@ -162,7 +160,6 @@
                   <h3 class="mb-3">Upload New Media File</h3>
                   <!-- img -->
                   <p class="text-muted mb-0">Upload video, audio, text, image, and PDF files.</p>
-                  <a href="#quqn">Learn More</a>
                 </div>
               </div> 
               <div class="col-lg-4 col-md-6 text-center">
@@ -170,7 +167,6 @@
                   <h3 class="mb-3">Message System</h3>
                   <!-- img -->
                   <p class="text-muted mb-0">Send out scheduled end-to-end encrypted text messages to users</p>
-                  <a href="#quqn">Learn More</a>
                 </div>
               </div> 
             </div>

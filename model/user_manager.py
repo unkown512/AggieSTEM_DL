@@ -18,6 +18,11 @@ def get_user_id(db, username):
   user_id = db['user'].find_one({'username': username})
   return user_id['_id']
 
+def get_user_id_email(db, email):
+  user_id = db['user'].find_one({'email': email})
+  return user_id['username']
+
+
 def validate_user(db, username, pw):
   """Check if a user's credential is correct."""
   print('\n\nVALIDATING USER\n\n')

@@ -44,12 +44,11 @@
           <!--data-validate = "Valid email is: a@b.c"-->
           {{ form.hidden_tag() }}
           {{ wtf.form_field(form.email) }}
-          {{ wtf.form_field(form.security_question) }}
           <div class="container-login100-form-btn">
             <div class="wrap-login100-form-btn">
               <div class="login100-form-bgbtn"></div>
-              <button class="login100-form-btn">
-                Login
+              <button id="get_username" class="login100-form-btn">
+                Request Username 
               </button>
             </div>
           </div>
@@ -63,6 +62,22 @@
   
 <!--=========================================================================================================-->
     <script src="{{ url_for('static', filename='vendor/jquery/jquery.min.js')}}"></script>
+    <script>
+    $('#get_username').on('click', function() {
+      console.log("WTF");
+      var user_data = {"email": $('#email').val()};
+      $.ajax({
+        url: "/get_username",
+        type: "POST",
+        data: JSON.stringify(user_data),
+        success: function(msg) {
+          console.log("success");
+        }, function(error) {
+          console.log(error);
+        }
+      });
+    });
+    </script>
 <!--=========================================================================================================-->
 <!--<script src="{{ url_for('static', filename='vendor/signin/animsition/js/animsition.min.js')}}"></script>-->
 <!--=========================================================================================================-->

@@ -38,7 +38,7 @@
                   Create Account
                 </span>
                 <span class="login100-form-title p-b-48">
-                  <img id="image_canv" src="{{ url_for('static', filename='img/AggieSTEM-Horizontal-Maroon-1.png') }}" style="width:100%;height:100%" alt="">
+                  <img id="image_canv" src="{{ url_for('static', filename='img/AggieSTEM-Horizontal-Maroon-1.png') }}" style="width:100%;height:100%" alt="">{{ error }}
                 </span>
                 <!--data-validate = "Valid email is: a@b.c"-->
                 {{ form.hidden_tag() }}

@@ -33,6 +33,9 @@ from model import user_manager
 from model import group_manager
 from model import library_manager
 
+# send_email_code
+from werkzeug.datastructures import ImmutableMultiDict
+
 # email imports
 import smtplib, ssl
 
@@ -64,6 +67,7 @@ def init_login_manager(app):
   return(login_manager, user_list, TEMP_LOGIN_DB)
 
 (login_manager, user_list, TEMP_LOGIN_DB) = init_login_manager(app)
+code = 0
 
 '''
   Class User: Managers user methods for session
@@ -112,12 +116,14 @@ class RegisterForm(FlaskForm):
 
 class ForgotUser(FlaskForm):
   email = StringField('Email', validators=[InputRequired(), Email(message='Invalid Email'), Length(max=250)])
-  security_question = StringField('Secruity Question', validators=[InputRequired(), Length(min=4, max=80)])
+
+class newPw(FlaskForm):
+  newpw = PasswordField('New Password', validators=[InputRequired(), Length(min=8, max=80)])
+  conf_password = PasswordField('Confirm Password', validators=[InputRequired(), Length(min=8, max=80)])
 
 class ForgotPw(FlaskForm):
-  username = StringField('Username', validators=[InputRequired(), Length(min=4, max=15)])
   email = StringField('Email', validators=[InputRequired(), Email(message='Invalid Email'), Length(max=250)])
-  security_question = StringField('Secruity Question', validators=[InputRequired(), Length(min=4, max=80)])
+  code = StringField('</br> Code', validators=[InputRequired(), Length(min=4, max=80)])
 
 # Get function for user during session
 @login_manager.user_loader
@@ -164,7 +170,7 @@ def signin():
       else:
         message = "Incorrect username or password"
     else:
-      message = "Invalid Form"
+      message = ""
   elif(request.method == 'GET'):
     render_template("signin.html", form=form)
   return render_template("signin.html", form=form, error=message)
@@ -173,6 +179,7 @@ def signin():
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
   form = RegisterForm()
+  message = ""
   if(request.method == 'GET'):
     return render_template('signup.html', form=form)
   elif(request.method == 'POST'):
@@ -189,13 +196,11 @@ def signup():
       db = db_client()
       user_manager.add_user(db, user_data)
 
-      print("User: " + user_data[0] + " successfully created...")
+      message = "User: " + user_data[0] + " successfully created."
       return redirect(url_for('signin'))
     else:
-      print("INVALID FORM")
-      return redirect(url_for('signin'))
-  else:
-    return redirect(url_for('signin'))
+      message = "Invalid Password or Email"
+  return render_template("signup.html", form=RegisterForm(), error=message)
 
 # Send SMS
 @app.route('/send_sms', methods=['GET', 'POST'])
@@ -210,42 +215,138 @@ def send_sms():
   elif(request.method == 'POST'):
     numbers = ast.literal_eval(request.form['numbers'])
     message = request.form['message'][1:-1]
-    
+
     client = boto3.client('sns')
     topic = client.create_topic(Name="message")
     topic_arn = topic['TopicArn']
-    
+
     for num in numbers:
       client.subscribe(TopicArn=topic_arn, Protocol='sms', Endpoint="+1" + num)
-    
-    client.publish(Message = message, TopicArn=topic_arn) 
+
+    client.publish(Message = message, TopicArn=topic_arn)
 
     for sub in client.list_subscriptions()['Subscriptions']:
       client.unsubscribe(SubscriptionArn=sub['SubscriptionArn'])
     client.delete_topic(TopicArn=topic_arn)
-    
-    flash("Message sent") # Doesnt work 
+
+    #flash("Message sent") # Doesnt work
   else:
     print("do something")
   return("testing");
 
-# Send Emails
-@app.route('/send_email', methods=['GET'])
-@login_required
-def send_email():
+
+@app.route('/check_code', methods=['POST'])
+def check_code():
+  print(code)
+  return("WTF")
+
+
+@app.route('/get_username', methods=['POST'])
+def get_username():
   if(request.method == 'GET'):
+    print("ERROR -- INVALID GET REQUEST")
+    return redirect(url_for('signin'))
+  elif(request.method == 'POST'):
+    print("TRYING TO SEND EMAIL")
+    # emailmsg
+    # txtmsg
+
+    data = request.form.to_dict()
+
+    for var in data:
+      email = var.split("\"email\":\"")
+      email = email[1].split("\"")
+      email = email[0]
+
+    db = db_client()
+
+    message = "Your username is: " + user_manager.get_user_id_email(db,email)
     port = 465
-    password = "ASECRET"
+    password = "Awsedrft42$"
 
     context = ssl.create_default_context()
     sender = "aggiestem.dl@gmail.com"
-    reciever = "theinformantherod@gmail.com"
+    reciever = email
     smtp_server = "smtp.gmail.com"
 
 
     with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
       server.login(sender, password)
-      server.sendmail(sender, reciever, "HELLO IT WORKED")
+      server.sendmail(sender, reciever, message)
+    return("EMAIL SENT")
+
+
+# Get email code
+@app.route('/send_email_code', methods=['POST'])
+def send_email_code():
+  if(request.method == 'GET'):
+    print("ERROR -- INVALID GET REQUEST")
+    return redirect(url_for('signin'))
+  elif(request.method == 'POST'):
+    print("TRYING TO SEND EMAIL")
+    # emailmsg
+    # txtmsg
+
+    data = request.form.to_dict()
+
+    for var in data:
+      email = var.split("\"email\":\"")
+      email = email[1].split("\"")
+      email = email[0]
+      message = var.split("\"message\":\"")
+      message = message[1].split("\"")
+      message = message[0]
+
+
+    code = random.getrandbits(64)
+    f = open(APP_ROOT + "/data/code.txt", 'r+')
+    f.write(str(code))
+    f.close()
+    message = message + ": " + str(code)
+
+    port = 465
+    password = "Awsedrft42$"
+
+    context = ssl.create_default_context()
+    sender = "aggiestem.dl@gmail.com"
+    reciever = email
+    smtp_server = "smtp.gmail.com"
+
+
+    with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
+      server.login(sender, password)
+      server.sendmail(sender, reciever, message)
+    return("EMAIL SENT")
+
+# Send Emails
+@app.route('/send_email', methods=['POST'])
+@login_required
+def send_email():
+  db = db_client()
+  if(user_manager.get_access_level(db, current_user.username) < 2):
+    return redirect(url_for('dashboard', user=current_user.username, access_level=current_user.access))
+  if(request.method == 'GET'):
+    print("ERROR -- INVALID GET REQUEST")
+    return redirect(url_for('dashboard', user=current_user.username, access_level=current_user.access))
+  elif(request.method == 'POST'):
+    print("TRYING TO SEND EMAIL")
+    # emailmsg
+    # txtmsg
+    email = request.form['email']
+    message = request.form['message'][1:-1]
+
+    port = 465
+    password = "Awsedrft42$"
+
+    context = ssl.create_default_context()
+    sender = "aggiestem.dl@gmail.com"
+    reciever = email
+    smtp_server = "smtp.gmail.com"
+
+
+    with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
+      server.login(sender, password)
+      server.sendmail(sender, reciever, message)
     return("EMAIL SENT")
 
 # User Profile
@@ -308,6 +409,16 @@ def recov_pw():
   if(request.method == 'GET'):
     return render_template('recov_pw.html', form=form)
   elif(request.method == 'POST'):
+    print("HEREHRHERHEHREHR")
+    email = form.email.data
+    code = form.email.data
+
+    f = open(APP_ROOT + "/data/code.txt", 'r+')
+    curr_code = f.read()
+
+    print(email)
+    print(code)
+    print(curr_code)
     return render_template('recov_pw.html', form=form)
   else:
     return render_template('signin.html', form=form, error="TEST")
