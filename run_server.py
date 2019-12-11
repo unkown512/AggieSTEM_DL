@@ -208,21 +208,22 @@ def send_sms():
   if(request.method == 'GET'):
     print("do something")
   elif(request.method == 'POST'):
-    # TODO - parse numbers, create topics (send message to mutiple numbers), send message
     numbers = ast.literal_eval(request.form['numbers'])
-    message = request.form['message']
-    print("post")
+    message = request.form['message'][1:-1]
     
     client = boto3.client('sns')
     topic = client.create_topic(Name="message")
     topic_arn = topic['TopicArn']
+    
     for num in numbers:
       client.subscribe(TopicArn=topic_arn, Protocol='sms', Endpoint="+1" + num)
-      print(num)
-    #client.publish(Message = message, TopicArn=topic_arn)
-    print("messages sent")
+    
+    client.publish(Message = message, TopicArn=topic_arn) 
+
+    for sub in client.list_subscriptions()['Subscriptions']:
+      client.unsubscribe(SubscriptionArn=sub['SubscriptionArn'])
     client.delete_topic(TopicArn=topic_arn)
-    print("topic deleted")
+    
     flash("Message sent") # Doesnt work 
   else:
     print("do something")
@@ -496,6 +497,6 @@ def db_client():
   return db
 
 if __name__ == "__main__":
-  #IP = '128.194.140.214'
-  IP = '127.0.0.1'
+  IP = '128.194.140.214'
+  #IP = '127.0.0.1'
   app.run(host = os.getenv('IP',IP), port=int(os.getenv('PORT',8080)), debug=True)
