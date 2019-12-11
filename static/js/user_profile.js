@@ -36,7 +36,7 @@ $(document).ready(function() {
       $.ajax({
         url: "/send_sms",
         type: "POST",
-        data: { "numbers": JSON.stringify(number.toArray()),
+        data: { "numbers": JSON.stringify(number.split()),
                 "message": JSON.stringify(message) },
         success: function() {
           $("#message").val('');
@@ -45,6 +45,6 @@ $(document).ready(function() {
           console.log(error);
         }
       });
-    }*/
+    }
   }); // End send_create_msg
 }); // End of document on ready
