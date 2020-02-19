@@ -262,7 +262,7 @@ def get_username():
 
     message = "Your username is: " + user_manager.get_user_id_email(db,email)
     port = 465
-    password = "Awsedrft42$"
+    password = ""
 
     context = ssl.create_default_context()
     sender = "aggiestem.dl@gmail.com"
@@ -305,7 +305,7 @@ def send_email_code():
     message = message + ": " + str(code)
 
     port = 465
-    password = "Awsedrft42$"
+    password = ""
 
     context = ssl.create_default_context()
     sender = "aggiestem.dl@gmail.com"
@@ -336,7 +336,7 @@ def send_email():
     message = request.form['message'][1:-1]
 
     port = 465
-    password = "Awsedrft42$"
+    password = ""
 
     context = ssl.create_default_context()
     sender = "aggiestem.dl@gmail.com"
