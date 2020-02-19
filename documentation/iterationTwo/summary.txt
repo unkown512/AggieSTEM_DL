@@ -1,0 +1,4 @@
+### Summary
+The manage users page was updated to be responsive to work on mobile or any sized screen as well as a navbar in maroon for the view title.
+Message users page is also being constructed and will need to buy the phone number required to send text messages to all users. This will be 
+discussed with the director Dr. Robert next week. Mongo database is setup and ready to allow users to start testing the current functionalty. 
