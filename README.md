@@ -6,8 +6,8 @@ TRY THIS LINK TO EDIT DESIGN DOC AND UPLOAD NEW ONE: https://www.overleaf.com/23
 
 ###You need to do the following to run the server:
 
-Install all packages
-Change datatables js hrc
-Change any PW information for emails
-Change any PW information for amazon text messaging
-Change IP of server.
+1) Install all packages
+2) Change datatables js hrc
+3) Change any PW information for emails
+4) Change any PW information for amazon text messaging
+5) Change IP of server.
