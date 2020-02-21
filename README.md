@@ -11,3 +11,4 @@ TRY THIS LINK TO EDIT DESIGN DOC AND UPLOAD NEW ONE: https://www.overleaf.com/23
 3) Change any PW information for emails
 4) Change any PW information for amazon text messaging
 5) Change IP of server.
+6) Run the command: python3 run_server.py
