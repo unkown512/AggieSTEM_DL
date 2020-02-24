@@ -49,7 +49,7 @@ $(document).ready(function() {
 
     idSrc: 'uid',
     dom: 'Blfrtip',
-    order: [[1, 'asc']],
+    order: [[2, 'asc']],
     columns: [
       {
         title: "",
